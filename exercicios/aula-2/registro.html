@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Registro individual — AV1.2</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="../../estilo.css" />
+</head>
+<body>
+<h1 id="registro-individual--av12">Registro individual — AV1.2</h1>
+<p><strong>Limite: uma página, incluindo evidências essenciais.</strong>
+Estudante: Márcio Belarmino de Arruda — Data: 17/10/2026 Origem:
+<code>caso/miniloja/calculo.py</code> fictício; modalidade: execução
+própria.</p>
+<p><strong>Golden master:</strong> 630 entradas; gerado por
+<code>exercicios/aula-2/golden_master.py --gravar</code> a partir do
+código original (9 carrinhos × 7 cupons × 5 UFs × flag NATAL 0/1,
+incluindo subtotal 200 exato, cupom inválido, <code>promo10</code> e
+<code>pe</code> minúsculos); comparação exata por tipo +
+<code>repr()</code> do retorno comparados como texto, sem tolerância.
+Resultado: 0 divergências no original, na rodada 1 e na rodada 2. Teste
+de sensibilidade: trocar <code>&gt; 200</code> por
+<code>&gt;= 200</code> numa cópia gerou 40 divergências (exit 1).</p>
+<table>
+<thead>
+<tr class="header">
+<th>Medida</th>
+<th>Rodada 1 (sem escopo)</th>
+<th>Rodada 2 (com escopo)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linhas adicionadas/removidas</td>
+<td>+27 / −61</td>
+<td>+11 / −32</td>
+</tr>
+<tr class="even">
+<td>Arquivos alterados (e quais estavam fora do esperado)</td>
+<td>1 (<code>calculo.py</code>); criou 4 funções e 4 constantes não
+pedidas</td>
+<td>1 (<code>calculo.py</code>); nenhum extra fora do arquivo</td>
+</tr>
+<tr class="odd">
+<td>Mudou comportamento? (golden master)</td>
+<td>Não (0/630)</td>
+<td>Não (0/630)</td>
+</tr>
+<tr class="even">
+<td>Tempo de revisão</td>
+<td>~10 min</td>
+<td>6 min</td>
+</tr>
+<tr class="odd">
+<td>Idas e vindas</td>
+<td>200 virou constante (<code>&gt;</code> separado do valor); fatores
+divididos entre dicionário e <code>0.8</code> solto; <code>if</code>
+aninhado virou <code>and</code>; <code>None</code> tratado
+implicitamente</td>
+<td>papel de <code>desconto_aplicado</code>; equivalência do
+<code>and</code> no NATAL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Escopo da rodada 2:</strong> objetivo deixar
+<code>calcular_total</code> mais legível sem mudar o comportamento; pode
+tocar só <code>calcular_total</code> em <code>calculo.py</code>; não
+pode tocar outros arquivos, assinatura, <code>&gt; 200</code> e
+<code>round()</code>; invariantes golden master 0 divergências e
+verificações iguais às atuais (8 passam); pronto quando golden master
+exit 0 e diff menor que o da rodada 1; pare e pergunte se precisar mudar
+comportamento ou tocar outro arquivo. <strong>Plano do agente: o que eu
+cortei ou corrigi antes de executar:</strong> pedi uma nova versão do
+plano e escolhi a de diff mínimo. Ficaram fora: troca do laço por
+<code>sum()</code> (estilo, não legibilidade), uso de
+<code>FRETE_POR_UF</code>/<code>TAXA_POR_UF</code> com
+<code>.get()</code> (aumenta o diff e o risco no valor padrão) e remoção
+do comentário de 2023 (histórico). Mantidos: remover
+<code>desconto_aplicado</code> e o <code>if ...: pass</code> (código
+morto) e unir as condições do frete. Desvio na execução: o agente também
+juntou <code>NATAL</code> e a flag num <code>and</code>, o que não
+estava no plano (equivalente, confirmado pelo golden master).
+<strong>Algo que parecia bug e eu apenas reportei:</strong> R1.3 pede
+frete grátis com subtotal ≥ 200, mas o código usa <code>&gt; 200</code>;
+R1.5 pede arredondamento meio para cima, mas o código usa
+<code>round()</code> de float;
+<code>FRETE_POR_UF</code>/<code>TAXA_POR_UF</code> definidas e sem uso;
+cupom e UF diferenciam maiúsculas (o contrato não fala disso).
+<strong><code>AGENTS.md</code> mínimo:</strong> ver
+<code>exercicios/aula-2/AGENTS.md</code> (comandos de verificação,
+limites de escopo, “reporte, não corrija”, plano antes de executar)</p>
+<p><strong>Trecho essencial de evidência:</strong>
+<code>python -B exercicios/aula-2/golden_master.py</code> →
+<code>630 casos comparados, 0 divergência(s).</code>;
+<code>git diff --numstat</code> → rodada 1 <code>27 61</code>, rodada 2
+<code>11 32</code>; <code>testes/test_miniloja.py --codigo caso</code> →
+8/11 nas duas (falham v08, v09, v10, de CPF/cadastro, fora do escopo).
+Diffs em <code>rodada1.diff</code> e <code>rodada2.diff</code>.
+<strong>Limite e condição para rever o escopo:</strong> o golden master
+garante que nada mudou, não que está certo: ele congela os erros do
+<code>&gt; 200</code> e do <code>round()</code> e só cobre as 630
+entradas gravadas. Revisei a rodada 2 depois da 1, já conhecendo o
+código, o que favorece a segunda. Na rodada 1 o agente já tinha o golden
+master e o <code>CLAUDE.md</code> no contexto, então o resultado sem
+escopo foi mais contido do que seria sem esse contexto. Eu ampliaria o
+escopo só numa mudança separada para corrigir R1.3/R1.5, com testes
+derivados do contrato e regravação declarada do golden master; e
+reduziria se o diff passasse do da rodada 1 ou se fosse preciso tocar
+outro arquivo.</p>
+<p><strong>Procedência/IA:</strong> ferramenta e modelo visíveis: Claude
+Code, Claude Opus 5.5 (<code>claude-opus-5-5</code>); tarefa delegada e
+contexto: script do golden master, execução das rodadas 1 e 2, medição
+dos diffs e rascunho deste registro e do <code>AGENTS.md</code>, com o
+repositório e o <code>CLAUDE.md</code> como contexto; trecho
+aproveitado: script, diffs e rascunho do texto; minha
+verificação/intervenção: escolhi o escopo, pedi a revisão do plano e
+escolhi a versão de diff mínimo, revisei os dois diffs cronometrando e
+conferi as equivalências (constante 200, fatores, <code>and</code> do
+NATAL). Use “não informado” para metadados indisponíveis. O raciocínio e
+a decisão registrados são meus.</p>
+<p><strong>Revisão:</strong> [x] golden master; [x] duas rodadas com
+números; [x] seis campos; [x] AGENTS.md; [x] até uma página.</p>
+</body>
+</html>
