@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Registro individual — AV1.3</title>
+  <style>
+    code{white-space: pre-wrap;}
+  </style>
+  <link rel="stylesheet" href="../../estilo.css" />
+</head>
+<body>
+<h1 id="registro-individual--av13">Registro individual — AV1.3</h1>
+<p><strong>Limite: uma página, incluindo evidências essenciais.</strong>
+Estudante: Márcio Belarmino de Arruda — Data: 17/10/2026 Origem:
+<code>caso/testes_existentes/</code> e <code>caso/regras.md</code>
+fictícios; modalidade: execução própria (Python 3.12.10; sabotagens numa
+cópia de <code>caso/</code>, código refatorado da AV1.2; mutação sobre o
+código original <code>2c2fc89</code>).</p>
+<table>
+<thead>
+<tr class="header">
+<th>Teste suspeito</th>
+<th>Tipo de tautologia</th>
+<th>Sabotagem que apliquei (ou raciocínio)</th>
+<th>Continuou verde?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>test_calculo.test_cupom_natal_com_flag</code></td>
+<td>Sem asserção real (só <code>assertIsNotNone</code>)</td>
+<td><code>total * 0.8</code> → <code>total * 0.79</code> no ramo do
+<code>NATAL</code></td>
+<td>Sim (26 OK)</td>
+</tr>
+<tr class="even">
+<td><code>test_pedidos.test_fluxo_chama_colaboradores</code> (e
+<code>test_criar_pedido</code>)</td>
+<td>Super-mockado / afirma o mock (só <code>.called</code>)</td>
+<td><code>self.gateway.cobrar(total, token)</code> →
+<code>cobrar(0, token)</code>: cobra R$ 0,00</td>
+<td>Sim (26 OK)</td>
+</tr>
+<tr class="odd">
+<td><code>test_calculo.test_cenarios_gravados</code></td>
+<td>Snapshot do próprio código (<code>limite_200: 223.55</code> é a saída
+atual, não R1.3)</td>
+<td><code>total &gt; 200</code> → <code>total &gt;= 200</code> (correção
+pedida pelo contrato)</td>
+<td>Não: <strong>falhou por defender o erro</strong></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th>Mutante sobrevivente</th>
+<th>Por que sobreviveu</th>
+<th>Teste que o mataria (ou “equivalente”, com justificativa)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>calculo.py</code>: NATAL 20% → 21%</td>
+<td>O único teste do <code>NATAL</code> não compara valor</td>
+<td><code>test_m1</code>: R$ 100, <code>NATAL</code>, flag 1, UF XX → 80 +
+29,90 = 109,90 × 1,08 = 118,692 → <strong>118,69</strong> (mutante dá
+117,61)</td>
+</tr>
+<tr class="even">
+<td><code>estoque.py</code>: <code>&lt;</code> → <code>&lt;=</code>
+(limite exato)</td>
+<td>Nenhum teste pede exatamente o saldo</td>
+<td><code>test_m2</code>: saldo 3, reservar 3 → <code>True</code> e saldo
+0 (mutante levanta <code>EstoqueInsuficiente</code>)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th>Caso derivado do contrato (entrada)</th>
+<th>Esperado (cálculo à mão)</th>
+<th>Observado no código</th>
+<th>Decisão</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C1 fronteira: 2 × R$ 100, sem cupom, PE</td>
+<td>200,00 ≥ 200 → frete 0 (R1.3); 200,00 × 1,05 =
+<strong>210,00</strong></td>
+<td>223,55</td>
+<td>Código errado (<code>&gt; 200</code> em vez de
+<code>&gt;=</code>)</td>
+</tr>
+<tr class="even">
+<td>C2 arredondamento: 1 × R$ 220, <code>PROMO10</code>, PE</td>
+<td>220 × 0,90 = 198,00 &lt; 200 → frete 12,90 (R1.6); 210,90 × 1,05 =
+221,445 → <strong>221,45</strong> (R1.5)</td>
+<td>221,44</td>
+<td>Código errado (<code>round()</code> de float: 210,9 +
+10,545000000000002 fica abaixo de ,445)</td>
+</tr>
+<tr class="odd">
+<td>C3 frete RJ: 1 × R$ 40, sem cupom, RJ</td>
+<td>(40,00 + 21,50) × 1,06 = <strong>65,19</strong></td>
+<td>65,19</td>
+<td>Concorda; vira teste (também mata o mutante “frete RJ”)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ADR curto:</strong> contexto: C1 e C2 divergem do contrato
+(R1.3 diz “maior ou igual a R$ 200,00”; R1.5 diz “meio para cima”) e
+<code>test_cenarios_gravados</code> congela o 223,55, então a suíte
+reprova justamente a correção; decisão: o lado errado é o código, porque
+o texto do contrato é explícito e o contrato vale mais que o código; o
+esperado fica 210,00/221,45 e a correção (<code>&gt;=</code> e
+arredondamento <code>Decimal</code> com <code>ROUND_HALF_UP</code>) vai
+numa mudança separada com escopo declarado; consequências:
+<code>limite_200</code> e o golden master da AV1.2 (40 divergências com
+<code>&gt;=</code>) precisam ser regravados de forma declarada, e os
+totais de pedidos na faixa de 200 mudam; alternativa descartada: trocar o
+esperado por 223,55 (teste espelho) ou ler R1.3 como “maior que”.</p>
+<p><strong>Trecho essencial de evidência:</strong>
+<code>python -B testes/test_miniloja.py --codigo caso --existentes</code>
+→ <code>Ran 26 tests … OK</code>; com cada sabotagem acima na cópia:
+NATAL <code>OK</code>, <code>cobrar(0)</code> <code>OK</code>,
+<code>&gt;= 200</code> → <code>FAIL: test_cenarios_gravados</code>.
+<code>MINILOJA_TEST_CMD="python -B testes/test_miniloja.py --existentes --codigo caso -x" python -B testes/mutacao_manual.py</code>
+(no original) →
+<code>Mutantes: 31 | mortos: 23 | sobreviventes: 8 | escore: 74%</code>.
+<code>python -B exercicios/aula-3/test_av13.py</code> → m1, m2, c3
+<code>ok</code>; c1 <code>223.55 != 210.0</code>, c2
+<code>221.44 != 221.45</code> (falham de propósito); m1 contra o mutante
+→ <code>117.61 != 118.69</code>, m2 →
+<code>EstoqueInsuficiente</code>. <strong>Limite do que a suíte garante e
+condição para rever a decisão:</strong> mesmo com os 5 testes, a suíte só
+cobre os pontos escolhidos: não verifica R2.2 (por leitura,
+<code>PedidoService.criar</code> reserva item a item e não desfaz a
+reserva se um item seguinte faltar), nem VIP15 em
+<code>descontos.py</code>, <code>total_fmt</code> e e-mail obrigatório
+(sobreviventes restantes). O mutante “variável sem efeito” é
+<strong>equivalente</strong>: <code>desconto_aplicado</code> só alimentava
+<code>if desconto_aplicado: pass</code>, sem efeito observável (e saiu do
+código na AV1.2). No código refatorado a ferramenta de mutação aborta
+(<code>trecho não encontrado: 'if total &gt; 200:'</code>), por isso o
+escore é do original. Reviso o ADR se o dono do contrato publicar uma
+versão que mude R1.3/R1.5 ou se outra parte (relatório, pagamento)
+depender do valor atual.</p>
+<p><strong>Procedência/IA:</strong> ferramenta e modelo visíveis: Claude
+Code, Claude Opus 5.5 (<code>claude-opus-5-5</code>); tarefa delegada e
+contexto: executar a linha de base, as sabotagens numa cópia, a mutação e
+os cálculos em <code>Decimal</code>, escrever <code>test_av13.py</code> e
+o rascunho deste registro, com o repositório, <code>regras.md</code> e o
+<code>CLAUDE.md</code> como contexto; trecho aproveitado: comandos,
+saídas, testes e rascunho do texto; minha verificação/intervenção: refiz
+à mão os cálculos de C1, C2, C3 e m1, conferi que a sabotagem do NATAL
+alterou só o <code>0.8</code> (a primeira tentativa, sem fim de linha,
+pegou o <code>0.85</code> do VIP15 e foi descartada) e decidi pelo código
+errado no ADR. O raciocínio e a decisão registrados são meus.</p>
+<p><strong>Revisão:</strong> [x] três testes; [x] dois mutantes; [x] três
+casos do contrato; [x] ADR; [x] até uma página.</p>
+</body>
+</html>

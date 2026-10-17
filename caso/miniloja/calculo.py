@@ -15,45 +15,27 @@ def calcular_total(itens, cupom=None, uf="PE"):
         total = total + preco * qtd
     # total = round(total, 2)  # tentamos arredondar aqui em 2023, desfeito
 
-    # desconto
-    desconto_aplicado = False
+    # desconto (FRETEGRATIS não altera o valor; cupom desconhecido é ignorado)
     if cupom is not None:
         if cupom == "PROMO10":
             total = total * 0.9
-            desconto_aplicado = True
         elif cupom == "VIP15":
             total = total * 0.85
-            desconto_aplicado = True
-        elif cupom == "FRETEGRATIS":
-            # tratado mais abaixo
-            desconto_aplicado = False
-        elif cupom == "NATAL":
+        elif cupom == "NATAL" and flags.promo_natal_ativa():
             # campanha antiga; só vale se a flag estiver ligada
-            if flags.promo_natal_ativa():
-                total = total * 0.8
-                desconto_aplicado = True
-            else:
-                desconto_aplicado = False
-        else:
-            # cupom desconhecido é ignorado
-            desconto_aplicado = False
+            total = total * 0.8
 
     # frete
-    frete = 0
-    if cupom == "FRETEGRATIS":
+    if cupom == "FRETEGRATIS" or total > 200:
         frete = 0
+    elif uf == "PE":
+        frete = 12.9
+    elif uf == "SP":
+        frete = 19.9
+    elif uf == "RJ":
+        frete = 21.5
     else:
-        if total > 200:
-            frete = 0
-        else:
-            if uf == "PE":
-                frete = 12.9
-            elif uf == "SP":
-                frete = 19.9
-            elif uf == "RJ":
-                frete = 21.5
-            else:
-                frete = 29.9
+        frete = 29.9
     total = total + frete
 
     # taxa de serviço por UF
@@ -67,8 +49,5 @@ def calcular_total(itens, cupom=None, uf="PE"):
         taxa = 0.08
     imposto = total * taxa
     total = total + imposto
-
-    if desconto_aplicado:
-        pass  # reservado para relatório de descontos (não implementado)
 
     return round(total, 2)
