@@ -1,0 +1,6 @@
+{
+  "_origem": "CPFs fictícios para teste (algoritmo de dígitos verificadores). Não pertencem a pessoas reais.",
+  "validos": ["529.982.247-25", "123.456.789-09", "390.533.447-05"],
+  "digito_verificador_errado": ["529.982.247-24", "123.456.789-10"],
+  "digitos_iguais": ["111.111.111-11", "00000000000"]
+}
