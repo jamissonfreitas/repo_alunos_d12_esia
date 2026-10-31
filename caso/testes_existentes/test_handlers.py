@@ -33,6 +33,9 @@ class TestHandlers(unittest.TestCase):
         )
         self.assertEqual(status, 201)
         status2, corpo = handlers.get_pedido(99, pedido["id"])
+        status_inexistente, corpo_inexistente = handlers.get_pedido(99, -1)
+        self.assertEqual(status_inexistente, 404)
         self.assertEqual(status2, 404)
         for campo in ("id", "usuario_id", "itens", "total", "total_fmt"):
             self.assertNotIn(campo, corpo)
+        self.assertEqual(corpo, corpo_inexistente)
