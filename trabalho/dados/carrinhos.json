@@ -1,0 +1,9 @@
+{
+  "_origem": "Carrinhos fictícios para exercícios. preco em reais; qtd inteira.",
+  "carrinhos": {
+    "C1_camisa_e_bola": [{"sku": "CAMISA-M", "preco": 80.0, "qtd": 1}, {"sku": "BOLA-01", "preco": 50.0, "qtd": 1}],
+    "C2_chuteira": [{"sku": "CHUTEIRA-42", "preco": 250.0, "qtd": 1}],
+    "C3_varias_bolas": [{"sku": "BOLA-01", "preco": 19.99, "qtd": 3}]
+  },
+  "estoque_inicial": {"BOLA-01": 50, "CHUTEIRA-42": 20, "CAMISA-M": 100}
+}

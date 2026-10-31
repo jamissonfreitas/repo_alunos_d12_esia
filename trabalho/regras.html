@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Contrato do caso MiniLoja (versão 1.0)</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="../estilo.css" />
+</head>
+<body>
+<h1 id="contrato-do-caso-miniloja-versão-10">Contrato do caso MiniLoja
+(versão 1.0)</h1>
+<p>MiniLoja é um backend <strong>fictício</strong> de pedidos de uma
+loja de material esportivo. Este documento é o
+<strong>contrato</strong>: define como o sistema deve funcionar. O
+"esperado" de qualquer teste deve vir daqui, e não do código. Os dados
+são sintéticos; escopo: entradas controladas, sem autenticação real nem
+integração externa.</p>
+<h2 id="r1--cálculo-do-total-do-pedido">R1 · Cálculo do total do
+pedido</h2>
+<ol type="1">
+<li><strong>Subtotal</strong> = soma de <code>preço × quantidade</code>
+de todos os itens.</li>
+<li><strong>Desconto</strong>, aplicado ao subtotal:
+<ul>
+<li><code>PROMO10</code>: 10%. <code>VIP15</code>: 15%.</li>
+<li><code>NATAL</code>: 20%, somente com a campanha ativa (variável de
+ambiente <code>MINILOJA_PROMO_NATAL=1</code>).</li>
+<li><code>FRETEGRATIS</code>: não altera o valor, mas zera o frete.</li>
+<li>Cupom desconhecido: <strong>ignorado</strong>, sem erro.</li>
+</ul></li>
+<li><strong>Frete</strong>:
+<ul>
+<li>É <strong>grátis</strong> quando o subtotal <strong>com
+desconto</strong> é <strong>maior ou igual a R$ 200,00</strong>, ou com
+o cupom <code>FRETEGRATIS</code>.</li>
+<li>Caso contrário, por UF: PE R$ 12,90 · SP R$ 19,90 · RJ R$ 21,50 ·
+demais UFs R$ 29,90.</li>
+</ul></li>
+<li><strong>Taxa de serviço</strong> sobre (subtotal com desconto +
+frete): PE 5% · SP 7% · RJ 6% · demais 8%.</li>
+<li><strong>Arredondamento:</strong> duas casas decimais, <strong>meio
+para cima</strong> (R$ 15,645 vira R$ 15,65).</li>
+<li><strong>Ordem:</strong> desconto, depois frete, depois taxa.</li>
+</ol>
+<h2 id="r2--pedido">R2 · Pedido</h2>
+<ol type="1">
+<li>Pedido <strong>sem itens</strong> é rejeitado
+(<code>400</code>).</li>
+<li>Todos os itens precisam ter estoque. Se algum não tiver, o pedido é
+recusado (<code>409</code>) e <strong>nenhuma reserva pode
+permanecer</strong>.</li>
+<li>Pagamento recusado <strong>não salva</strong> o pedido
+(<code>402</code>).</li>
+</ol>
+<h2 id="r3--cadastro-de-cliente">R3 · Cadastro de cliente</h2>
+<ol type="1">
+<li>Campos obrigatórios: <code>nome</code>, <code>email</code> e
+<code>cpf</code>.</li>
+<li>O <code>cpf</code> deve ter <strong>dígitos verificadores
+válidos</strong> e <strong>não pode ter todos os dígitos
+iguais</strong>. Aceita com ou sem pontuação.</li>
+<li>O <code>email</code> deve ter o formato
+<code>texto@texto.texto</code>.</li>
+<li>Cadastro inválido responde <strong><code>422</code></strong> com a
+<strong>lista de todos os erros</strong> de uma vez:
+<code>{"erros": [{"campo": "...", "erro": "..."}]}</code>. Não responde
+só o primeiro erro.</li>
+<li>Cadastro válido responde <code>201</code> com o cliente e um
+<code>id</code> sequencial.</li>
+</ol>
+<h2 id="r4--acesso">R4 · Acesso</h2>
+<ol type="1">
+<li>Um usuário só pode ver os <strong>próprios</strong> pedidos.</li>
+</ol>
+<h2 id="dados-de-apoio">Dados de apoio</h2>
+<p><code>caso/dados/cpfs.json</code> (CPFs fictícios válidos e
+inválidos) e <code>caso/dados/carrinhos.json</code> (carrinhos de
+exemplo).</p>
+</body>
+</html>

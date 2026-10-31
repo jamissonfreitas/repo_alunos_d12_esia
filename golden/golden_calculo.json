@@ -1,0 +1,898 @@
+{
+ "C1_camisa_e_bola|None|PE|natal=0": [
+  "float",
+  "150.05"
+ ],
+ "C1_camisa_e_bola|None|SP|natal=0": [
+  "float",
+  "160.39"
+ ],
+ "C1_camisa_e_bola|None|RJ|natal=0": [
+  "float",
+  "160.59"
+ ],
+ "C1_camisa_e_bola|None|XX|natal=0": [
+  "float",
+  "172.69"
+ ],
+ "C1_camisa_e_bola|PROMO10|PE|natal=0": [
+  "float",
+  "136.4"
+ ],
+ "C1_camisa_e_bola|PROMO10|SP|natal=0": [
+  "float",
+  "146.48"
+ ],
+ "C1_camisa_e_bola|PROMO10|RJ|natal=0": [
+  "float",
+  "146.81"
+ ],
+ "C1_camisa_e_bola|PROMO10|XX|natal=0": [
+  "float",
+  "158.65"
+ ],
+ "C1_camisa_e_bola|VIP15|PE|natal=0": [
+  "float",
+  "129.57"
+ ],
+ "C1_camisa_e_bola|VIP15|SP|natal=0": [
+  "float",
+  "139.53"
+ ],
+ "C1_camisa_e_bola|VIP15|RJ|natal=0": [
+  "float",
+  "139.92"
+ ],
+ "C1_camisa_e_bola|VIP15|XX|natal=0": [
+  "float",
+  "151.63"
+ ],
+ "C1_camisa_e_bola|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "136.5"
+ ],
+ "C1_camisa_e_bola|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "139.1"
+ ],
+ "C1_camisa_e_bola|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "137.8"
+ ],
+ "C1_camisa_e_bola|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "140.4"
+ ],
+ "C1_camisa_e_bola|NATAL|PE|natal=0": [
+  "float",
+  "150.05"
+ ],
+ "C1_camisa_e_bola|NATAL|PE|natal=1": [
+  "float",
+  "122.75"
+ ],
+ "C1_camisa_e_bola|NATAL|SP|natal=0": [
+  "float",
+  "160.39"
+ ],
+ "C1_camisa_e_bola|NATAL|SP|natal=1": [
+  "float",
+  "132.57"
+ ],
+ "C1_camisa_e_bola|NATAL|RJ|natal=0": [
+  "float",
+  "160.59"
+ ],
+ "C1_camisa_e_bola|NATAL|RJ|natal=1": [
+  "float",
+  "133.03"
+ ],
+ "C1_camisa_e_bola|NATAL|XX|natal=0": [
+  "float",
+  "172.69"
+ ],
+ "C1_camisa_e_bola|NATAL|XX|natal=1": [
+  "float",
+  "144.61"
+ ],
+ "C1_camisa_e_bola|INVALIDO|PE|natal=0": [
+  "float",
+  "150.05"
+ ],
+ "C1_camisa_e_bola|INVALIDO|SP|natal=0": [
+  "float",
+  "160.39"
+ ],
+ "C1_camisa_e_bola|INVALIDO|RJ|natal=0": [
+  "float",
+  "160.59"
+ ],
+ "C1_camisa_e_bola|INVALIDO|XX|natal=0": [
+  "float",
+  "172.69"
+ ],
+ "C2_chuteira_250|None|PE|natal=0": [
+  "float",
+  "262.5"
+ ],
+ "C2_chuteira_250|None|SP|natal=0": [
+  "float",
+  "267.5"
+ ],
+ "C2_chuteira_250|None|RJ|natal=0": [
+  "float",
+  "265.0"
+ ],
+ "C2_chuteira_250|None|XX|natal=0": [
+  "float",
+  "270.0"
+ ],
+ "C2_chuteira_250|PROMO10|PE|natal=0": [
+  "float",
+  "236.25"
+ ],
+ "C2_chuteira_250|PROMO10|SP|natal=0": [
+  "float",
+  "240.75"
+ ],
+ "C2_chuteira_250|PROMO10|RJ|natal=0": [
+  "float",
+  "238.5"
+ ],
+ "C2_chuteira_250|PROMO10|XX|natal=0": [
+  "float",
+  "243.0"
+ ],
+ "C2_chuteira_250|VIP15|PE|natal=0": [
+  "float",
+  "223.12"
+ ],
+ "C2_chuteira_250|VIP15|SP|natal=0": [
+  "float",
+  "227.38"
+ ],
+ "C2_chuteira_250|VIP15|RJ|natal=0": [
+  "float",
+  "225.25"
+ ],
+ "C2_chuteira_250|VIP15|XX|natal=0": [
+  "float",
+  "229.5"
+ ],
+ "C2_chuteira_250|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "262.5"
+ ],
+ "C2_chuteira_250|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "267.5"
+ ],
+ "C2_chuteira_250|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "265.0"
+ ],
+ "C2_chuteira_250|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "270.0"
+ ],
+ "C2_chuteira_250|NATAL|PE|natal=0": [
+  "float",
+  "262.5"
+ ],
+ "C2_chuteira_250|NATAL|PE|natal=1": [
+  "float",
+  "223.55"
+ ],
+ "C2_chuteira_250|NATAL|SP|natal=0": [
+  "float",
+  "267.5"
+ ],
+ "C2_chuteira_250|NATAL|SP|natal=1": [
+  "float",
+  "235.29"
+ ],
+ "C2_chuteira_250|NATAL|RJ|natal=0": [
+  "float",
+  "265.0"
+ ],
+ "C2_chuteira_250|NATAL|RJ|natal=1": [
+  "float",
+  "234.79"
+ ],
+ "C2_chuteira_250|NATAL|XX|natal=0": [
+  "float",
+  "270.0"
+ ],
+ "C2_chuteira_250|NATAL|XX|natal=1": [
+  "float",
+  "248.29"
+ ],
+ "C2_chuteira_250|INVALIDO|PE|natal=0": [
+  "float",
+  "262.5"
+ ],
+ "C2_chuteira_250|INVALIDO|SP|natal=0": [
+  "float",
+  "267.5"
+ ],
+ "C2_chuteira_250|INVALIDO|RJ|natal=0": [
+  "float",
+  "265.0"
+ ],
+ "C2_chuteira_250|INVALIDO|XX|natal=0": [
+  "float",
+  "270.0"
+ ],
+ "C3_bolas_19_99x3|None|PE|natal=0": [
+  "float",
+  "76.51"
+ ],
+ "C3_bolas_19_99x3|None|SP|natal=0": [
+  "float",
+  "85.46"
+ ],
+ "C3_bolas_19_99x3|None|RJ|natal=0": [
+  "float",
+  "86.36"
+ ],
+ "C3_bolas_19_99x3|None|XX|natal=0": [
+  "float",
+  "97.06"
+ ],
+ "C3_bolas_19_99x3|PROMO10|PE|natal=0": [
+  "float",
+  "70.22"
+ ],
+ "C3_bolas_19_99x3|PROMO10|SP|natal=0": [
+  "float",
+  "79.04"
+ ],
+ "C3_bolas_19_99x3|PROMO10|RJ|natal=0": [
+  "float",
+  "80.0"
+ ],
+ "C3_bolas_19_99x3|PROMO10|XX|natal=0": [
+  "float",
+  "90.58"
+ ],
+ "C3_bolas_19_99x3|VIP15|PE|natal=0": [
+  "float",
+  "67.07"
+ ],
+ "C3_bolas_19_99x3|VIP15|SP|natal=0": [
+  "float",
+  "75.84"
+ ],
+ "C3_bolas_19_99x3|VIP15|RJ|natal=0": [
+  "float",
+  "76.82"
+ ],
+ "C3_bolas_19_99x3|VIP15|XX|natal=0": [
+  "float",
+  "87.34"
+ ],
+ "C3_bolas_19_99x3|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "62.97"
+ ],
+ "C3_bolas_19_99x3|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "64.17"
+ ],
+ "C3_bolas_19_99x3|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "63.57"
+ ],
+ "C3_bolas_19_99x3|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "64.77"
+ ],
+ "C3_bolas_19_99x3|NATAL|PE|natal=0": [
+  "float",
+  "76.51"
+ ],
+ "C3_bolas_19_99x3|NATAL|PE|natal=1": [
+  "float",
+  "63.92"
+ ],
+ "C3_bolas_19_99x3|NATAL|SP|natal=0": [
+  "float",
+  "85.46"
+ ],
+ "C3_bolas_19_99x3|NATAL|SP|natal=1": [
+  "float",
+  "72.63"
+ ],
+ "C3_bolas_19_99x3|NATAL|RJ|natal=0": [
+  "float",
+  "86.36"
+ ],
+ "C3_bolas_19_99x3|NATAL|RJ|natal=1": [
+  "float",
+  "73.64"
+ ],
+ "C3_bolas_19_99x3|NATAL|XX|natal=0": [
+  "float",
+  "97.06"
+ ],
+ "C3_bolas_19_99x3|NATAL|XX|natal=1": [
+  "float",
+  "84.11"
+ ],
+ "C3_bolas_19_99x3|INVALIDO|PE|natal=0": [
+  "float",
+  "76.51"
+ ],
+ "C3_bolas_19_99x3|INVALIDO|SP|natal=0": [
+  "float",
+  "85.46"
+ ],
+ "C3_bolas_19_99x3|INVALIDO|RJ|natal=0": [
+  "float",
+  "86.36"
+ ],
+ "C3_bolas_19_99x3|INVALIDO|XX|natal=0": [
+  "float",
+  "97.06"
+ ],
+ "vazio|None|PE|natal=0": [
+  "float",
+  "13.54"
+ ],
+ "vazio|None|SP|natal=0": [
+  "float",
+  "21.29"
+ ],
+ "vazio|None|RJ|natal=0": [
+  "float",
+  "22.79"
+ ],
+ "vazio|None|XX|natal=0": [
+  "float",
+  "32.29"
+ ],
+ "vazio|PROMO10|PE|natal=0": [
+  "float",
+  "13.54"
+ ],
+ "vazio|PROMO10|SP|natal=0": [
+  "float",
+  "21.29"
+ ],
+ "vazio|PROMO10|RJ|natal=0": [
+  "float",
+  "22.79"
+ ],
+ "vazio|PROMO10|XX|natal=0": [
+  "float",
+  "32.29"
+ ],
+ "vazio|VIP15|PE|natal=0": [
+  "float",
+  "13.54"
+ ],
+ "vazio|VIP15|SP|natal=0": [
+  "float",
+  "21.29"
+ ],
+ "vazio|VIP15|RJ|natal=0": [
+  "float",
+  "22.79"
+ ],
+ "vazio|VIP15|XX|natal=0": [
+  "float",
+  "32.29"
+ ],
+ "vazio|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "0.0"
+ ],
+ "vazio|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "0.0"
+ ],
+ "vazio|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "0.0"
+ ],
+ "vazio|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "0.0"
+ ],
+ "vazio|NATAL|PE|natal=0": [
+  "float",
+  "13.54"
+ ],
+ "vazio|NATAL|PE|natal=1": [
+  "float",
+  "13.54"
+ ],
+ "vazio|NATAL|SP|natal=0": [
+  "float",
+  "21.29"
+ ],
+ "vazio|NATAL|SP|natal=1": [
+  "float",
+  "21.29"
+ ],
+ "vazio|NATAL|RJ|natal=0": [
+  "float",
+  "22.79"
+ ],
+ "vazio|NATAL|RJ|natal=1": [
+  "float",
+  "22.79"
+ ],
+ "vazio|NATAL|XX|natal=0": [
+  "float",
+  "32.29"
+ ],
+ "vazio|NATAL|XX|natal=1": [
+  "float",
+  "32.29"
+ ],
+ "vazio|INVALIDO|PE|natal=0": [
+  "float",
+  "13.54"
+ ],
+ "vazio|INVALIDO|SP|natal=0": [
+  "float",
+  "21.29"
+ ],
+ "vazio|INVALIDO|RJ|natal=0": [
+  "float",
+  "22.79"
+ ],
+ "vazio|INVALIDO|XX|natal=0": [
+  "float",
+  "32.29"
+ ],
+ "exato_200|None|PE|natal=0": [
+  "float",
+  "223.55"
+ ],
+ "exato_200|None|SP|natal=0": [
+  "float",
+  "235.29"
+ ],
+ "exato_200|None|RJ|natal=0": [
+  "float",
+  "234.79"
+ ],
+ "exato_200|None|XX|natal=0": [
+  "float",
+  "248.29"
+ ],
+ "exato_200|PROMO10|PE|natal=0": [
+  "float",
+  "202.55"
+ ],
+ "exato_200|PROMO10|SP|natal=0": [
+  "float",
+  "213.89"
+ ],
+ "exato_200|PROMO10|RJ|natal=0": [
+  "float",
+  "213.59"
+ ],
+ "exato_200|PROMO10|XX|natal=0": [
+  "float",
+  "226.69"
+ ],
+ "exato_200|VIP15|PE|natal=0": [
+  "float",
+  "192.05"
+ ],
+ "exato_200|VIP15|SP|natal=0": [
+  "float",
+  "203.19"
+ ],
+ "exato_200|VIP15|RJ|natal=0": [
+  "float",
+  "202.99"
+ ],
+ "exato_200|VIP15|XX|natal=0": [
+  "float",
+  "215.89"
+ ],
+ "exato_200|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "210.0"
+ ],
+ "exato_200|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "214.0"
+ ],
+ "exato_200|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "212.0"
+ ],
+ "exato_200|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "216.0"
+ ],
+ "exato_200|NATAL|PE|natal=0": [
+  "float",
+  "223.55"
+ ],
+ "exato_200|NATAL|PE|natal=1": [
+  "float",
+  "181.55"
+ ],
+ "exato_200|NATAL|SP|natal=0": [
+  "float",
+  "235.29"
+ ],
+ "exato_200|NATAL|SP|natal=1": [
+  "float",
+  "192.49"
+ ],
+ "exato_200|NATAL|RJ|natal=0": [
+  "float",
+  "234.79"
+ ],
+ "exato_200|NATAL|RJ|natal=1": [
+  "float",
+  "192.39"
+ ],
+ "exato_200|NATAL|XX|natal=0": [
+  "float",
+  "248.29"
+ ],
+ "exato_200|NATAL|XX|natal=1": [
+  "float",
+  "205.09"
+ ],
+ "exato_200|INVALIDO|PE|natal=0": [
+  "float",
+  "223.55"
+ ],
+ "exato_200|INVALIDO|SP|natal=0": [
+  "float",
+  "235.29"
+ ],
+ "exato_200|INVALIDO|RJ|natal=0": [
+  "float",
+  "234.79"
+ ],
+ "exato_200|INVALIDO|XX|natal=0": [
+  "float",
+  "248.29"
+ ],
+ "quase_200|None|PE|natal=0": [
+  "float",
+  "223.53"
+ ],
+ "quase_200|None|SP|natal=0": [
+  "float",
+  "235.28"
+ ],
+ "quase_200|None|RJ|natal=0": [
+  "float",
+  "234.78"
+ ],
+ "quase_200|None|XX|natal=0": [
+  "float",
+  "248.28"
+ ],
+ "quase_200|PROMO10|PE|natal=0": [
+  "float",
+  "202.54"
+ ],
+ "quase_200|PROMO10|SP|natal=0": [
+  "float",
+  "213.88"
+ ],
+ "quase_200|PROMO10|RJ|natal=0": [
+  "float",
+  "213.58"
+ ],
+ "quase_200|PROMO10|XX|natal=0": [
+  "float",
+  "226.68"
+ ],
+ "quase_200|VIP15|PE|natal=0": [
+  "float",
+  "192.04"
+ ],
+ "quase_200|VIP15|SP|natal=0": [
+  "float",
+  "203.18"
+ ],
+ "quase_200|VIP15|RJ|natal=0": [
+  "float",
+  "202.98"
+ ],
+ "quase_200|VIP15|XX|natal=0": [
+  "float",
+  "215.88"
+ ],
+ "quase_200|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "209.99"
+ ],
+ "quase_200|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "213.99"
+ ],
+ "quase_200|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "211.99"
+ ],
+ "quase_200|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "215.99"
+ ],
+ "quase_200|NATAL|PE|natal=0": [
+  "float",
+  "223.53"
+ ],
+ "quase_200|NATAL|PE|natal=1": [
+  "float",
+  "181.54"
+ ],
+ "quase_200|NATAL|SP|natal=0": [
+  "float",
+  "235.28"
+ ],
+ "quase_200|NATAL|SP|natal=1": [
+  "float",
+  "192.48"
+ ],
+ "quase_200|NATAL|RJ|natal=0": [
+  "float",
+  "234.78"
+ ],
+ "quase_200|NATAL|RJ|natal=1": [
+  "float",
+  "192.38"
+ ],
+ "quase_200|NATAL|XX|natal=0": [
+  "float",
+  "248.28"
+ ],
+ "quase_200|NATAL|XX|natal=1": [
+  "float",
+  "205.08"
+ ],
+ "quase_200|INVALIDO|PE|natal=0": [
+  "float",
+  "223.53"
+ ],
+ "quase_200|INVALIDO|SP|natal=0": [
+  "float",
+  "235.28"
+ ],
+ "quase_200|INVALIDO|RJ|natal=0": [
+  "float",
+  "234.78"
+ ],
+ "quase_200|INVALIDO|XX|natal=0": [
+  "float",
+  "248.28"
+ ],
+ "arredonda_2x1|None|PE|natal=0": [
+  "float",
+  "15.64"
+ ],
+ "arredonda_2x1|None|SP|natal=0": [
+  "float",
+  "23.43"
+ ],
+ "arredonda_2x1|None|RJ|natal=0": [
+  "float",
+  "24.91"
+ ],
+ "arredonda_2x1|None|XX|natal=0": [
+  "float",
+  "34.45"
+ ],
+ "arredonda_2x1|PROMO10|PE|natal=0": [
+  "float",
+  "15.44"
+ ],
+ "arredonda_2x1|PROMO10|SP|natal=0": [
+  "float",
+  "23.22"
+ ],
+ "arredonda_2x1|PROMO10|RJ|natal=0": [
+  "float",
+  "24.7"
+ ],
+ "arredonda_2x1|PROMO10|XX|natal=0": [
+  "float",
+  "34.24"
+ ],
+ "arredonda_2x1|VIP15|PE|natal=0": [
+  "float",
+  "15.33"
+ ],
+ "arredonda_2x1|VIP15|SP|natal=0": [
+  "float",
+  "23.11"
+ ],
+ "arredonda_2x1|VIP15|RJ|natal=0": [
+  "float",
+  "24.59"
+ ],
+ "arredonda_2x1|VIP15|XX|natal=0": [
+  "float",
+  "34.13"
+ ],
+ "arredonda_2x1|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "2.1"
+ ],
+ "arredonda_2x1|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "2.14"
+ ],
+ "arredonda_2x1|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "2.12"
+ ],
+ "arredonda_2x1|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "2.16"
+ ],
+ "arredonda_2x1|NATAL|PE|natal=0": [
+  "float",
+  "15.64"
+ ],
+ "arredonda_2x1|NATAL|PE|natal=1": [
+  "float",
+  "15.22"
+ ],
+ "arredonda_2x1|NATAL|SP|natal=0": [
+  "float",
+  "23.43"
+ ],
+ "arredonda_2x1|NATAL|SP|natal=1": [
+  "float",
+  "23.0"
+ ],
+ "arredonda_2x1|NATAL|RJ|natal=0": [
+  "float",
+  "24.91"
+ ],
+ "arredonda_2x1|NATAL|RJ|natal=1": [
+  "float",
+  "24.49"
+ ],
+ "arredonda_2x1|NATAL|XX|natal=0": [
+  "float",
+  "34.45"
+ ],
+ "arredonda_2x1|NATAL|XX|natal=1": [
+  "float",
+  "34.02"
+ ],
+ "arredonda_2x1|INVALIDO|PE|natal=0": [
+  "float",
+  "15.64"
+ ],
+ "arredonda_2x1|INVALIDO|SP|natal=0": [
+  "float",
+  "23.43"
+ ],
+ "arredonda_2x1|INVALIDO|RJ|natal=0": [
+  "float",
+  "24.91"
+ ],
+ "arredonda_2x1|INVALIDO|XX|natal=0": [
+  "float",
+  "34.45"
+ ],
+ "promo_cruza_200|None|PE|natal=0": [
+  "float",
+  "233.34"
+ ],
+ "promo_cruza_200|None|SP|natal=0": [
+  "float",
+  "237.79"
+ ],
+ "promo_cruza_200|None|RJ|natal=0": [
+  "float",
+  "235.56"
+ ],
+ "promo_cruza_200|None|XX|natal=0": [
+  "float",
+  "240.01"
+ ],
+ "promo_cruza_200|PROMO10|PE|natal=0": [
+  "float",
+  "210.01"
+ ],
+ "promo_cruza_200|PROMO10|SP|natal=0": [
+  "float",
+  "214.01"
+ ],
+ "promo_cruza_200|PROMO10|RJ|natal=0": [
+  "float",
+  "212.01"
+ ],
+ "promo_cruza_200|PROMO10|XX|natal=0": [
+  "float",
+  "216.01"
+ ],
+ "promo_cruza_200|VIP15|PE|natal=0": [
+  "float",
+  "211.89"
+ ],
+ "promo_cruza_200|VIP15|SP|natal=0": [
+  "float",
+  "223.41"
+ ],
+ "promo_cruza_200|VIP15|RJ|natal=0": [
+  "float",
+  "223.02"
+ ],
+ "promo_cruza_200|VIP15|XX|natal=0": [
+  "float",
+  "236.3"
+ ],
+ "promo_cruza_200|FRETEGRATIS|PE|natal=0": [
+  "float",
+  "233.34"
+ ],
+ "promo_cruza_200|FRETEGRATIS|SP|natal=0": [
+  "float",
+  "237.79"
+ ],
+ "promo_cruza_200|FRETEGRATIS|RJ|natal=0": [
+  "float",
+  "235.56"
+ ],
+ "promo_cruza_200|FRETEGRATIS|XX|natal=0": [
+  "float",
+  "240.01"
+ ],
+ "promo_cruza_200|NATAL|PE|natal=0": [
+  "float",
+  "233.34"
+ ],
+ "promo_cruza_200|NATAL|PE|natal=1": [
+  "float",
+  "200.22"
+ ],
+ "promo_cruza_200|NATAL|SP|natal=0": [
+  "float",
+  "237.79"
+ ],
+ "promo_cruza_200|NATAL|SP|natal=1": [
+  "float",
+  "211.52"
+ ],
+ "promo_cruza_200|NATAL|RJ|natal=0": [
+  "float",
+  "235.56"
+ ],
+ "promo_cruza_200|NATAL|RJ|natal=1": [
+  "float",
+  "211.24"
+ ],
+ "promo_cruza_200|NATAL|XX|natal=0": [
+  "float",
+  "240.01"
+ ],
+ "promo_cruza_200|NATAL|XX|natal=1": [
+  "float",
+  "224.3"
+ ],
+ "promo_cruza_200|INVALIDO|PE|natal=0": [
+  "float",
+  "233.34"
+ ],
+ "promo_cruza_200|INVALIDO|SP|natal=0": [
+  "float",
+  "237.79"
+ ],
+ "promo_cruza_200|INVALIDO|RJ|natal=0": [
+  "float",
+  "235.56"
+ ],
+ "promo_cruza_200|INVALIDO|XX|natal=0": [
+  "float",
+  "240.01"
+ ]
+}
