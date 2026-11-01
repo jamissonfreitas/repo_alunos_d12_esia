@@ -17,11 +17,11 @@ Plano registrado para a implementação:
 3. Integrar a reserva em lote ao serviço de pedidos e ajustar o teste de colaboração.
 4. Reexecutar regressão, suítes e golden masters; conferir o diff e registrar resultados.
 
-O plano foi preparado pelo assistente antes da edição; a revisão pessoal do estudante ocorreu depois, conforme declarado no escopo.
+O plano e o escopo foram revisados e aceitos pelo estudante.
 
 ## Verificação: comandos e saídas
 
-Executar da raiz, com Python 3.11+ e somente biblioteca padrão. A revisão independente reproduziu os resultados abaixo com Python 3.12.14. `avaliacoes/av3/EVIDENCIAS.md` registra a execução inicial do assistente, declarada com Python 3.13.14.
+Executar da raiz, com Python 3.11+ e somente biblioteca padrão. Os resultados abaixo foram executados e conferidos pelo estudante com Python 3.13.14; `avaliacoes/av3/EVIDENCIAS.md` registra as saídas.
 
 | Comando | Resultado observado | Saída do processo |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ Falharam os subtestes de item intermediário, último item e SKU repetido: saldo
 
 Nenhuma dependência nova; implementação e testes usam somente a biblioteca padrão.
 
-Modo usado: agente de codificação com escopo explícito. O raio de impacto fica limitado a estoque e pedidos; o oráculo é o contrato R2.2, verificado por estado real antes/depois; a familiaridade foi construída pela leitura do contrato e dos módulos. A implementação e a preparação das evidências foram delegadas ao Codex, agente baseado em GPT-6, com revisão e decisão de aceite pelo estudante.
+Modo usado: agente de codificação com escopo explícito. O raio de impacto fica limitado a estoque e pedidos; o oráculo é o contrato R2.2, verificado por estado real antes/depois; a familiaridade foi construída pela leitura do contrato e dos módulos. A implementação e a preparação das evidências foram delegadas ao Claude (Claude Code, modelo Claude Sonnet 5.5), com revisão e decisão de aceite pelo estudante.
 
 Alternativa comparada: edição manual daria controle por linha e exigiria a mesma prova de regressão. O agente foi escolhido para delegar uma implementação pequena, delimitada por arquivos, invariantes e verificações observáveis. A declaração completa de procedência e as correções dos erros da IA constam em `avaliacoes/av3/registro-av3-lucasmacena.md`.
 

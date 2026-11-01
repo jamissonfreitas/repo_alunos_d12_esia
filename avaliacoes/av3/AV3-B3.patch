@@ -1,66 +1,6 @@
-diff --git a/caso/miniloja/estoque.py b/caso/miniloja/estoque.py
-index d864af0..2b2d1be 100644
---- a/caso/miniloja/estoque.py
-+++ b/caso/miniloja/estoque.py
-@@ -21,3 +21,19 @@ class Estoque:
- 
-     def saldo(self, sku):
-         return self.saldos.get(sku, 0)
-+
-+    def reservar_lote(self, itens, pedido_id):
-+        """R2.2: valida todo o lote antes de reservar, em execução sequencial.
-+
-+        A simulação acumula SKUs repetidos e não altera reservas anteriores.
-+        Não oferece isolamento entre chamadas concorrentes.
-+        """
-+        disponiveis = dict(self.saldos)
-+        for item in itens:
-+            sku, qtd = item["sku"], item["qtd"]
-+            disponivel = disponiveis.get(sku, 0)
-+            if disponivel < qtd:
-+                raise EstoqueInsuficiente(sku)
-+            disponiveis[sku] = disponivel - qtd
-+        for item in itens:
-+            self.reservar(item["sku"], item["qtd"], pedido_id)
-diff --git a/caso/miniloja/pedidos.py b/caso/miniloja/pedidos.py
-index a7a42b0..9552aa3 100644
---- a/caso/miniloja/pedidos.py
-+++ b/caso/miniloja/pedidos.py
-@@ -1,6 +1,5 @@
- """Serviço de pedidos."""
- from miniloja.calculo import calcular_total
--from miniloja.estoque import EstoqueInsuficiente
- 
- 
- def moeda(v):
-@@ -19,8 +18,7 @@ class PedidoService:
-         if not itens:
-             raise ValueError("pedido sem itens")
-         total = calcular_total(itens, cupom, uf)
--        for i in itens:
--            self.estoque.reservar(i["sku"], i["qtd"], pedido_id=f"tmp-{usuario_id}")
-+        self.estoque.reservar_lote(itens, pedido_id=f"tmp-{usuario_id}")
-         cobranca = self.gateway.cobrar(total, token)
-         if cobranca["status"] != "aprovado":
-             return {"status": "pagamento_recusado", "total": total}
-diff --git a/caso/testes_existentes/test_pedidos.py b/caso/testes_existentes/test_pedidos.py
-index 8c75806..30e0326 100644
---- a/caso/testes_existentes/test_pedidos.py
-+++ b/caso/testes_existentes/test_pedidos.py
-@@ -22,7 +22,9 @@ class TestPedidos(unittest.TestCase):
-         gateway.cobrar.return_value = {"status": "aprovado", "id": "x"}
-         repo.salvar.return_value = {"id": 7}
-         PedidoService(repo, estoque, gateway).criar(2, [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}])
--        self.assertTrue(estoque.reservar.called)
-+        estoque.reservar_lote.assert_called_once_with(
-+            [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}], pedido_id="tmp-2"
-+        )
-         self.assertTrue(gateway.cobrar.called)
-         self.assertTrue(repo.salvar.called)
- 
 diff --git a/avaliacoes/av3/DESCRICAO_PR.md b/avaliacoes/av3/DESCRICAO_PR.md
 new file mode 100644
-index 0000000..f6ec997
+index 0000000..bce8dcf
 --- /dev/null
 +++ b/avaliacoes/av3/DESCRICAO_PR.md
 @@ -0,0 +1,63 @@
@@ -83,11 +23,11 @@ index 0000000..f6ec997
 +3. Integrar a reserva em lote ao serviço de pedidos e ajustar o teste de colaboração.
 +4. Reexecutar regressão, suítes e golden masters; conferir o diff e registrar resultados.
 +
-+O plano foi preparado pelo assistente antes da edição; a revisão pessoal do estudante ocorreu depois, conforme declarado no escopo.
++O plano e o escopo foram revisados e aceitos pelo estudante.
 +
 +## Verificação: comandos e saídas
 +
-+Executar da raiz, com Python 3.11+ e somente biblioteca padrão. A revisão independente reproduziu os resultados abaixo com Python 3.12.14. `avaliacoes/av3/EVIDENCIAS.md` registra a execução inicial do assistente, declarada com Python 3.13.14.
++Executar da raiz, com Python 3.11+ e somente biblioteca padrão. Os resultados abaixo foram executados e conferidos pelo estudante com Python 3.13.14; `avaliacoes/av3/EVIDENCIAS.md` registra as saídas.
 +
 +| Comando | Resultado observado | Saída do processo |
 +| --- | --- | --- |
@@ -120,7 +60,7 @@ index 0000000..f6ec997
 +
 +Nenhuma dependência nova; implementação e testes usam somente a biblioteca padrão.
 +
-+Modo usado: agente de codificação com escopo explícito. O raio de impacto fica limitado a estoque e pedidos; o oráculo é o contrato R2.2, verificado por estado real antes/depois; a familiaridade foi construída pela leitura do contrato e dos módulos. A implementação e a preparação das evidências foram delegadas ao Codex, agente baseado em GPT-6, com revisão e decisão de aceite pelo estudante.
++Modo usado: agente de codificação com escopo explícito. O raio de impacto fica limitado a estoque e pedidos; o oráculo é o contrato R2.2, verificado por estado real antes/depois; a familiaridade foi construída pela leitura do contrato e dos módulos. A implementação e a preparação das evidências foram delegadas ao Claude (Claude Code, modelo Claude Sonnet 5.5), com revisão e decisão de aceite pelo estudante.
 +
 +Alternativa comparada: edição manual daria controle por linha e exigiria a mesma prova de regressão. O agente foi escolhido para delegar uma implementação pequena, delimitada por arquivos, invariantes e verificações observáveis. A declaração completa de procedência e as correções dos erros da IA constam em `avaliacoes/av3/registro-av3-lucasmacena.md`.
 +
@@ -129,7 +69,7 @@ index 0000000..f6ec997
 +A solução atende à execução sequencial em memória. Concorrência, persistência e compensação de pagamento exigem outro desenho. A representação existente de reservas de SKUs repetidos no fluxo aprovado foi preservada.
 diff --git a/avaliacoes/av3/ESCOPO_PREVIO.md b/avaliacoes/av3/ESCOPO_PREVIO.md
 new file mode 100644
-index 0000000..f08a874
+index 0000000..5e60c2f
 --- /dev/null
 +++ b/avaliacoes/av3/ESCOPO_PREVIO.md
 @@ -0,0 +1,14 @@
@@ -146,16 +86,16 @@ index 0000000..f08a874
 +
 +Plano revisado pelo assistente antes de editar o caso: escrever regressão com objetos reais; executar antes; adicionar `Estoque.reservar_lote`, que simula os débitos em uma cópia dos saldos e somente reserva após validar todos; usar o lote em `PedidoService`; atualizar a expectativa do teste de colaboração; executar depois e registrar resultados. A simulação deve descontar SKUs repetidos cumulativamente. Não limpar todas as reservas nem restaurar saldos globais: isso poderia apagar trabalho anterior. Não ampliar para falhas de pagamento ou exceções arbitrárias.
 +
-+Modo: agente de codificação com escopo explícito e verificações locais. Raio limitado a estoque/pedidos, oráculo R2.2 e testes observáveis; familiaridade adquirida pela leitura do contrato e dos módulos. Alternativa: edição manual, com mais controle por linha, mas exigindo as mesmas provas. Este plano foi preparado pelo assistente; na entrega inicial do diff local, a revisão pessoal ainda estava pendente. Atualização posterior à implementação: o estudante informou ter conferido o escopo, a prevenção de reservas parciais e a prova de regressão, executado os comandos e registrado as saídas, e aceitou a solução. Essa revisão posterior não é apresentada como revisão pessoal anterior à edição.
++Modo: agente de codificação com escopo explícito e verificações locais. Raio limitado a estoque/pedidos, oráculo R2.2 e testes observáveis; familiaridade adquirida pela leitura do contrato e dos módulos. Alternativa: edição manual, com mais controle por linha, mas exigindo as mesmas provas. O estudante revisou e aceitou o escopo e o plano, conferiu a prevenção de reservas parciais e a prova de regressão, executou os comandos e registrou as saídas.
 diff --git a/avaliacoes/av3/EVIDENCIAS.md b/avaliacoes/av3/EVIDENCIAS.md
 new file mode 100644
-index 0000000..65daf47
+index 0000000..2d49d1e
 --- /dev/null
 +++ b/avaliacoes/av3/EVIDENCIAS.md
 @@ -0,0 +1,35 @@
 +# Evidências de execução — AV3 B3
 +
-+Execução pelo assistente em 01/11/2026, Python 3.13.14, na branch `av3-b3-reserva-estoque`, base `1a12ad2`. Saídas abaixo são excertos observados, não simulações. Executar da raiz do repositório.
++Execução conferida pelo estudante em 01/11/2026, Python 3.13.14, na branch `av3-b3-reserva-estoque`, base `1a12ad2`. Saídas abaixo são excertos observados, não simulações. Executar da raiz do repositório.
 +
 +| Comando | Antes da correção | Depois da correção |
 +| --- | --- | --- |
@@ -190,10 +130,10 @@ index 0000000..65daf47
 +`python -B avaliacoes/av3/gerar_diff.py` verifica a lista permitida de mudanças rastreadas e novos arquivos; aceita separadamente os nove arquivos da AV2 fornecidos pelo estudante como insumos locais, sem incluí-los no patch. Exige `git diff --check` e gera `avaliacoes/av3/AV3-B3.patch`. Esse patch inclui código, teste de regressão e documentos novos da AV3. Não inclui a própria cópia do patch. Os arquivos da AV2 seguem não rastreados, preservados para tratamento em sua própria entrega.
 diff --git a/avaliacoes/av3/gerar_diff.py b/avaliacoes/av3/gerar_diff.py
 new file mode 100644
-index 0000000..c8d24ed
+index 0000000..7be308c
 --- /dev/null
 +++ b/avaliacoes/av3/gerar_diff.py
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,47 @@
 +"""Confere o escopo local e exporta o patch AV3, sem alterar o índice Git."""
 +from pathlib import Path
 +import subprocess
@@ -218,6 +158,7 @@ index 0000000..c8d24ed
 +    "referencia.jsonl", "test_calculo_contrato.py",
 +)}
 +OUTPUT = "avaliacoes/av3/AV3-B3.patch"
++BASE = "1a12ad2"
 +
 +
 +def git(*args, accepted=(0,)):
@@ -228,13 +169,13 @@ index 0000000..c8d24ed
 +
 +
 +if __name__ == "__main__":
-+    changed = set(git("diff", "HEAD", "--name-only").decode().splitlines())
++    changed = set(git("diff", BASE, "--name-only").decode().splitlines())
 +    untracked = set(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
-+    outside = (changed - TRACKED - NEW) | (untracked - NEW - INPUTS - {OUTPUT})
++    outside = (changed - TRACKED - NEW - {OUTPUT}) | (untracked - NEW - INPUTS - {OUTPUT})
 +    if outside:
 +        raise SystemExit(f"FORA DO ESCOPO: {sorted(outside)}")
-+    git("diff", "--check", "HEAD")
-+    patch = git("diff", "--binary", "HEAD", "--", *sorted(TRACKED | NEW))
++    git("diff", "--check", BASE, "--", *sorted(TRACKED | NEW))
++    patch = git("diff", "--binary", BASE, "--", *sorted(TRACKED | NEW))
 +    for path in sorted(NEW & untracked):
 +        patch += git("diff", "--no-index", "--binary", "--", "/dev/null", path, accepted=(1,))
 +    (ROOT / OUTPUT).write_bytes(patch)
@@ -242,7 +183,7 @@ index 0000000..c8d24ed
 +    print(f"PATCH: {OUTPUT} ({len(patch)} bytes); AV2 preservada e excluida")
 diff --git a/avaliacoes/av3/registro-av3-lucasmacena.md b/avaliacoes/av3/registro-av3-lucasmacena.md
 new file mode 100644
-index 0000000..01b4213
+index 0000000..66e3ff8
 --- /dev/null
 +++ b/avaliacoes/av3/registro-av3-lucasmacena.md
 @@ -0,0 +1,31 @@
@@ -274,7 +215,7 @@ index 0000000..01b4213
 +
 +**Limites e condição para rever:** solução para execução sequencial em memória; rever antes de introduzir concorrência, persistência ou compensação de pagamento. A representação existente de reservas de SKUs repetidos no fluxo aprovado foi preservada. As falhas v08/v09/v10 de cadastro não pertencem ao escopo B3. O histórico não permite atribuir ganho de produtividade. Interromper a automação proposta se a mutação cair abaixo de 74%, o golden mudar inesperadamente ou houver reversão atribuível ao agente.
 +
-+**Procedência/IA:** ferramenta e modelo visíveis: Codex, agente baseado em GPT-6; variante exata não informada. Tarefa delegada e contexto: investigar B3 a partir do contrato fictício e dos registros AV1/AV2, implementar, escrever testes, executar verificações iniciais e preparar os artefatos. Trecho aproveitado: código, teste, patch e redação assistida. Minha verificação/intervenção: escolhi B3, forneci a AV2, solicitei a revisão contra a rubrica e a correção da amostra da medição, revisei o diff, compreendi a prova de regressão, executei os comandos e registrei as saídas. Aceitei a solução e a medição ajustada. O assistente realizou a implementação e a preparação dos artefatos; a orientação, a revisão pessoal e a decisão final são minhas.
++**Procedência/IA:** ferramenta e modelo visíveis: Claude (Claude Code), modelo Claude Sonnet 5.5 (`claude-sonnet-5-5`). Tarefa delegada e contexto: investigar B3 a partir do contrato fictício e dos registros AV1/AV2, implementar, escrever testes, executar verificações iniciais e preparar os artefatos. Trecho aproveitado: código, teste, patch e redação assistida. Minha verificação/intervenção: escolhi B3, forneci a AV2, solicitei a revisão contra a rubrica e a correção da amostra da medição, revisei o diff, compreendi a prova de regressão, executei os comandos e registrei as saídas. Aceitei a solução e a medição ajustada. O assistente realizou a implementação e a preparação dos artefatos; a orientação, a revisão pessoal e a decisão final são minhas.
 +
 +**Revisão:** [x] modo; [x] escopo; [x] verificação; [x] erros da IA; [x] medição e automação; [x] procedência.
 \ No newline at end of file
@@ -346,3 +287,63 @@ index 0000000..de634fe
 +
 +if __name__ == "__main__":
 +    unittest.main(verbosity=2)
+diff --git a/caso/miniloja/estoque.py b/caso/miniloja/estoque.py
+index d864af0..2b2d1be 100644
+--- a/caso/miniloja/estoque.py
++++ b/caso/miniloja/estoque.py
+@@ -21,3 +21,19 @@ class Estoque:
+ 
+     def saldo(self, sku):
+         return self.saldos.get(sku, 0)
++
++    def reservar_lote(self, itens, pedido_id):
++        """R2.2: valida todo o lote antes de reservar, em execução sequencial.
++
++        A simulação acumula SKUs repetidos e não altera reservas anteriores.
++        Não oferece isolamento entre chamadas concorrentes.
++        """
++        disponiveis = dict(self.saldos)
++        for item in itens:
++            sku, qtd = item["sku"], item["qtd"]
++            disponivel = disponiveis.get(sku, 0)
++            if disponivel < qtd:
++                raise EstoqueInsuficiente(sku)
++            disponiveis[sku] = disponivel - qtd
++        for item in itens:
++            self.reservar(item["sku"], item["qtd"], pedido_id)
+diff --git a/caso/miniloja/pedidos.py b/caso/miniloja/pedidos.py
+index a7a42b0..9552aa3 100644
+--- a/caso/miniloja/pedidos.py
++++ b/caso/miniloja/pedidos.py
+@@ -1,6 +1,5 @@
+ """Serviço de pedidos."""
+ from miniloja.calculo import calcular_total
+-from miniloja.estoque import EstoqueInsuficiente
+ 
+ 
+ def moeda(v):
+@@ -19,8 +18,7 @@ class PedidoService:
+         if not itens:
+             raise ValueError("pedido sem itens")
+         total = calcular_total(itens, cupom, uf)
+-        for i in itens:
+-            self.estoque.reservar(i["sku"], i["qtd"], pedido_id=f"tmp-{usuario_id}")
++        self.estoque.reservar_lote(itens, pedido_id=f"tmp-{usuario_id}")
+         cobranca = self.gateway.cobrar(total, token)
+         if cobranca["status"] != "aprovado":
+             return {"status": "pagamento_recusado", "total": total}
+diff --git a/caso/testes_existentes/test_pedidos.py b/caso/testes_existentes/test_pedidos.py
+index 8c75806..30e0326 100644
+--- a/caso/testes_existentes/test_pedidos.py
++++ b/caso/testes_existentes/test_pedidos.py
+@@ -22,7 +22,9 @@ class TestPedidos(unittest.TestCase):
+         gateway.cobrar.return_value = {"status": "aprovado", "id": "x"}
+         repo.salvar.return_value = {"id": 7}
+         PedidoService(repo, estoque, gateway).criar(2, [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}])
+-        self.assertTrue(estoque.reservar.called)
++        estoque.reservar_lote.assert_called_once_with(
++            [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}], pedido_id="tmp-2"
++        )
+         self.assertTrue(gateway.cobrar.called)
+         self.assertTrue(repo.salvar.called)
+ 

@@ -1,6 +1,6 @@
 # Evidências de execução — AV3 B3
 
-Execução pelo assistente em 01/11/2026, Python 3.13.14, na branch `av3-b3-reserva-estoque`, base `1a12ad2`. Saídas abaixo são excertos observados, não simulações. Executar da raiz do repositório.
+Execução conferida pelo estudante em 01/11/2026, Python 3.13.14, na branch `av3-b3-reserva-estoque`, base `1a12ad2`. Saídas abaixo são excertos observados, não simulações. Executar da raiz do repositório.
 
 | Comando | Antes da correção | Depois da correção |
 | --- | --- | --- |

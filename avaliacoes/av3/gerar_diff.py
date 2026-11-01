@@ -22,6 +22,7 @@ INPUTS = {f"avaliacoes/av2/{name}" for name in (
     "referencia.jsonl", "test_calculo_contrato.py",
 )}
 OUTPUT = "avaliacoes/av3/AV3-B3.patch"
+BASE = "1a12ad2"
 
 
 def git(*args, accepted=(0,)):
@@ -32,13 +33,13 @@ def git(*args, accepted=(0,)):
 
 
 if __name__ == "__main__":
-    changed = set(git("diff", "HEAD", "--name-only").decode().splitlines())
+    changed = set(git("diff", BASE, "--name-only").decode().splitlines())
     untracked = set(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
-    outside = (changed - TRACKED - NEW) | (untracked - NEW - INPUTS - {OUTPUT})
+    outside = (changed - TRACKED - NEW - {OUTPUT}) | (untracked - NEW - INPUTS - {OUTPUT})
     if outside:
         raise SystemExit(f"FORA DO ESCOPO: {sorted(outside)}")
-    git("diff", "--check", "HEAD")
-    patch = git("diff", "--binary", "HEAD", "--", *sorted(TRACKED | NEW))
+    git("diff", "--check", BASE, "--", *sorted(TRACKED | NEW))
+    patch = git("diff", "--binary", BASE, "--", *sorted(TRACKED | NEW))
     for path in sorted(NEW & untracked):
         patch += git("diff", "--no-index", "--binary", "--", "/dev/null", path, accepted=(1,))
     (ROOT / OUTPUT).write_bytes(patch)
