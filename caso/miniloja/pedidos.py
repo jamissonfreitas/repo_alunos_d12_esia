@@ -1,6 +1,5 @@
 """Serviço de pedidos."""
 from miniloja.calculo import calcular_total
-from miniloja.estoque import EstoqueInsuficiente
 
 
 def moeda(v):
@@ -19,8 +18,7 @@ class PedidoService:
         if not itens:
             raise ValueError("pedido sem itens")
         total = calcular_total(itens, cupom, uf)
-        for i in itens:
-            self.estoque.reservar(i["sku"], i["qtd"], pedido_id=f"tmp-{usuario_id}")
+        self.estoque.reservar_lote(itens, pedido_id=f"tmp-{usuario_id}")
         cobranca = self.gateway.cobrar(total, token)
         if cobranca["status"] != "aprovado":
             return {"status": "pagamento_recusado", "total": total}
