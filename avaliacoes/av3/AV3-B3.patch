@@ -1,0 +1,348 @@
+diff --git a/caso/miniloja/estoque.py b/caso/miniloja/estoque.py
+index d864af0..2b2d1be 100644
+--- a/caso/miniloja/estoque.py
++++ b/caso/miniloja/estoque.py
+@@ -21,3 +21,19 @@ class Estoque:
+ 
+     def saldo(self, sku):
+         return self.saldos.get(sku, 0)
++
++    def reservar_lote(self, itens, pedido_id):
++        """R2.2: valida todo o lote antes de reservar, em execução sequencial.
++
++        A simulação acumula SKUs repetidos e não altera reservas anteriores.
++        Não oferece isolamento entre chamadas concorrentes.
++        """
++        disponiveis = dict(self.saldos)
++        for item in itens:
++            sku, qtd = item["sku"], item["qtd"]
++            disponivel = disponiveis.get(sku, 0)
++            if disponivel < qtd:
++                raise EstoqueInsuficiente(sku)
++            disponiveis[sku] = disponivel - qtd
++        for item in itens:
++            self.reservar(item["sku"], item["qtd"], pedido_id)
+diff --git a/caso/miniloja/pedidos.py b/caso/miniloja/pedidos.py
+index a7a42b0..9552aa3 100644
+--- a/caso/miniloja/pedidos.py
++++ b/caso/miniloja/pedidos.py
+@@ -1,6 +1,5 @@
+ """Serviço de pedidos."""
+ from miniloja.calculo import calcular_total
+-from miniloja.estoque import EstoqueInsuficiente
+ 
+ 
+ def moeda(v):
+@@ -19,8 +18,7 @@ class PedidoService:
+         if not itens:
+             raise ValueError("pedido sem itens")
+         total = calcular_total(itens, cupom, uf)
+-        for i in itens:
+-            self.estoque.reservar(i["sku"], i["qtd"], pedido_id=f"tmp-{usuario_id}")
++        self.estoque.reservar_lote(itens, pedido_id=f"tmp-{usuario_id}")
+         cobranca = self.gateway.cobrar(total, token)
+         if cobranca["status"] != "aprovado":
+             return {"status": "pagamento_recusado", "total": total}
+diff --git a/caso/testes_existentes/test_pedidos.py b/caso/testes_existentes/test_pedidos.py
+index 8c75806..30e0326 100644
+--- a/caso/testes_existentes/test_pedidos.py
++++ b/caso/testes_existentes/test_pedidos.py
+@@ -22,7 +22,9 @@ class TestPedidos(unittest.TestCase):
+         gateway.cobrar.return_value = {"status": "aprovado", "id": "x"}
+         repo.salvar.return_value = {"id": 7}
+         PedidoService(repo, estoque, gateway).criar(2, [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}])
+-        self.assertTrue(estoque.reservar.called)
++        estoque.reservar_lote.assert_called_once_with(
++            [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}], pedido_id="tmp-2"
++        )
+         self.assertTrue(gateway.cobrar.called)
+         self.assertTrue(repo.salvar.called)
+ 
+diff --git a/avaliacoes/av3/DESCRICAO_PR.md b/avaliacoes/av3/DESCRICAO_PR.md
+new file mode 100644
+index 0000000..f6ec997
+--- /dev/null
++++ b/avaliacoes/av3/DESCRICAO_PR.md
+@@ -0,0 +1,63 @@
++# AV3 B3 — Corrige reserva parcial de estoque na criação de pedidos
++
++## Intenção e comportamento
++
++Cumprir R2.2: se algum item não tiver estoque, responder `409` sem consumir saldo nem deixar reservas desta tentativa. Antes, a falta de estoque em um item posterior mantinha os débitos dos itens anteriores. Agora, `Estoque.reservar_lote` simula os débitos em uma cópia dos saldos, acumula as quantidades de SKUs repetidos e só efetiva as reservas quando todos os itens podem ser atendidos. Reservas anteriores, inclusive do mesmo usuário, são preservadas na recusa.
++
++## Escopo e plano
++
++A mudança de código fica em `caso/miniloja/estoque.py`, `caso/miniloja/pedidos.py` e na expectativa de colaboração em `caso/testes_existentes/test_pedidos.py` (20 linhas adicionadas e quatro removidas). Os artefatos da AV3 incluem teste de regressão, escopo, evidências, registro individual e descrição da entrega.
++
++O escopo de seis campos está em `avaliacoes/av3/ESCOPO_PREVIO.md`: objetivo, arquivos permitidos, arquivos proibidos, invariantes, condição de conclusão e condição de parada. A assinatura de `PedidoService.criar`, as respostas, a exceção de estoque e os fluxos aprovado e de pagamento recusado são preservados. `testes/`, `caso/regras.md`, cálculo, cadastro, acesso e pagamentos ficam fora da alteração.
++
++Plano registrado para a implementação:
++
++1. Escrever uma regressão com estoque, repositório e gateway reais e executá-la na base `1a12ad2`.
++2. Validar o lote inteiro antes de reservar, incluindo SKUs repetidos.
++3. Integrar a reserva em lote ao serviço de pedidos e ajustar o teste de colaboração.
++4. Reexecutar regressão, suítes e golden masters; conferir o diff e registrar resultados.
++
++O plano foi preparado pelo assistente antes da edição; a revisão pessoal do estudante ocorreu depois, conforme declarado no escopo.
++
++## Verificação: comandos e saídas
++
++Executar da raiz, com Python 3.11+ e somente biblioteca padrão. A revisão independente reproduziu os resultados abaixo com Python 3.12.14. `avaliacoes/av3/EVIDENCIAS.md` registra a execução inicial do assistente, declarada com Python 3.13.14.
++
++| Comando | Resultado observado | Saída do processo |
++| --- | --- | --- |
++| `python -B -m unittest avaliacoes/av3/test_reserva_estoque.py -v` | `Ran 2 tests`; `OK` | 0 |
++| `python -B testes/test_miniloja.py --codigo caso --existentes` | `Ran 26 tests`; `OK` | 0 |
++| `python -B testes/test_miniloja.py --codigo caso` | `Ran 11 tests`; `FAILED (failures=3)` | 1 |
++| `python -B artefatos/golden_master.py --compare` | `OK: 12` saídas iguais exatamente às capturadas | 0 |
++| `python -B avaliacoes/av2/golden.py --compare` | `IGUAL: 2882 casos, 268203 bytes (calculo.py)` | 0 |
++| `git diff --check HEAD` | Sem saída; nenhuma inconsistência de whitespace detectada | 0 |
++
++As três falhas gerais são as anteriores de cadastro: v08 (`201 != 422`), v09 (`201 != 422`) e v10 (`400 != 422`). São declaradas como falhas e permanecem fora de B3. Os 26 testes existentes não são usados isoladamente como prova da correção.
++
++O golden da AV2 é uma verificação complementar que depende dos insumos locais daquela avaliação, excluídos da entrega B3. A regressão B3 pode ser executada sem esses insumos.
++
++## Teste que falharia sem a mudança
++
++`TestReservaEstoque.test_falha_preserva_estado_e_nao_cobra_nem_salva`, em `avaliacoes/av3/test_reserva_estoque.py`, compara exatamente saldos e reservas anteriores e exige resposta `409`, nenhuma cobrança e nenhum pedido salvo.
++
++Reprodução em uma cópia temporária da base `1a12ad2`, adicionando somente o novo arquivo de teste:
++
++```text
++python -B -m unittest avaliacoes/av3/test_reserva_estoque.py -v
++Ran 2 tests
++FAILED (failures=3)
++```
++
++Falharam os subtestes de item intermediário, último item e SKU repetido: saldos observados `{'A': 3, 'B': 3}`, `{'A': 3, 'B': 2}` e `{'A': 2, 'B': 3}`, respectivamente, contra `{'A': 4, 'B': 3}` esperado. Com a correção, ambos os métodos de teste passam, incluindo esses cenários, a insuficiência no primeiro item e uma compra aprovada com SKU repetido. Isso demonstra que a regressão detecta o defeito original.
++
++## Dependências e modo de interação
++
++Nenhuma dependência nova; implementação e testes usam somente a biblioteca padrão.
++
++Modo usado: agente de codificação com escopo explícito. O raio de impacto fica limitado a estoque e pedidos; o oráculo é o contrato R2.2, verificado por estado real antes/depois; a familiaridade foi construída pela leitura do contrato e dos módulos. A implementação e a preparação das evidências foram delegadas ao Codex, agente baseado em GPT-6, com revisão e decisão de aceite pelo estudante.
++
++Alternativa comparada: edição manual daria controle por linha e exigiria a mesma prova de regressão. O agente foi escolhido para delegar uma implementação pequena, delimitada por arquivos, invariantes e verificações observáveis. A declaração completa de procedência e as correções dos erros da IA constam em `avaliacoes/av3/registro-av3-lucasmacena.md`.
++
++## Limites
++
++A solução atende à execução sequencial em memória. Concorrência, persistência e compensação de pagamento exigem outro desenho. A representação existente de reservas de SKUs repetidos no fluxo aprovado foi preservada.
+diff --git a/avaliacoes/av3/ESCOPO_PREVIO.md b/avaliacoes/av3/ESCOPO_PREVIO.md
+new file mode 100644
+index 0000000..f08a874
+--- /dev/null
++++ b/avaliacoes/av3/ESCOPO_PREVIO.md
+@@ -0,0 +1,14 @@
++# AV3 B3 — escopo e plano anteriores à mudança
++
++Data: 01/11/2026. Base: `1a12ad2`, branch `av3-b3-reserva-estoque`.
++
++1. Objetivo: cumprir R2.2; insuficiência em qualquer item deve produzir 409 sem consumir saldo nem deixar reservas desta tentativa.
++2. Pode tocar: `caso/miniloja/estoque.py`, `caso/miniloja/pedidos.py`, `caso/testes_existentes/test_pedidos.py` e novos arquivos desta pasta.
++3. Não pode tocar: `testes/`, `caso/regras.md`, cálculo, cadastro, acesso, pagamentos, registros anteriores e arquivos fornecidos da AV2.
++4. Invariantes: assinatura de `criar`, formato das respostas, exceção `EstoqueInsuficiente`, fluxo aprovado e comportamento de pagamento recusado. Preservar reservas de pedidos anteriores, inclusive do mesmo usuário.
++5. Pronto quando: regressão comprovadamente vermelha antes e verde depois; saldo e reservas comparados exatamente; 409 sem cobrança/salvamento; suíte existente e golden conferidos; diff restrito à lista permitida.
++6. Parar se: forem necessárias mudanças no contrato, dependências, cálculo, autenticação ou política de pagamento. Concorrência e persistência exigem outra solução e ficam fora desta tarefa didática em memória.
++
++Plano revisado pelo assistente antes de editar o caso: escrever regressão com objetos reais; executar antes; adicionar `Estoque.reservar_lote`, que simula os débitos em uma cópia dos saldos e somente reserva após validar todos; usar o lote em `PedidoService`; atualizar a expectativa do teste de colaboração; executar depois e registrar resultados. A simulação deve descontar SKUs repetidos cumulativamente. Não limpar todas as reservas nem restaurar saldos globais: isso poderia apagar trabalho anterior. Não ampliar para falhas de pagamento ou exceções arbitrárias.
++
++Modo: agente de codificação com escopo explícito e verificações locais. Raio limitado a estoque/pedidos, oráculo R2.2 e testes observáveis; familiaridade adquirida pela leitura do contrato e dos módulos. Alternativa: edição manual, com mais controle por linha, mas exigindo as mesmas provas. Este plano foi preparado pelo assistente; na entrega inicial do diff local, a revisão pessoal ainda estava pendente. Atualização posterior à implementação: o estudante informou ter conferido o escopo, a prevenção de reservas parciais e a prova de regressão, executado os comandos e registrado as saídas, e aceitou a solução. Essa revisão posterior não é apresentada como revisão pessoal anterior à edição.
+diff --git a/avaliacoes/av3/EVIDENCIAS.md b/avaliacoes/av3/EVIDENCIAS.md
+new file mode 100644
+index 0000000..65daf47
+--- /dev/null
++++ b/avaliacoes/av3/EVIDENCIAS.md
+@@ -0,0 +1,35 @@
++# Evidências de execução — AV3 B3
++
++Execução pelo assistente em 01/11/2026, Python 3.13.14, na branch `av3-b3-reserva-estoque`, base `1a12ad2`. Saídas abaixo são excertos observados, não simulações. Executar da raiz do repositório.
++
++| Comando | Antes da correção | Depois da correção |
++| --- | --- | --- |
++| `python -B -m unittest avaliacoes/av3/test_reserva_estoque.py -v` | `Ran 2 tests`; `FAILED (failures=3)` | `Ran 2 tests`; `OK` |
++| `python -B testes/test_miniloja.py --codigo caso --existentes` | `Ran 26 tests`; `OK` | `Ran 26 tests`; `OK` |
++| `python -B testes/test_miniloja.py --codigo caso` | `Ran 11 tests`; `FAILED (failures=3)` | `Ran 11 tests`; `FAILED (failures=3)` |
++| `python -B artefatos/golden_master.py --compare` | `OK: 12` saídas iguais exatamente | `OK: 12` saídas iguais exatamente |
++| `python -B avaliacoes/av2/golden.py --compare` | Não executado nesta fase | `IGUAL: 2882 casos, 268203 bytes (calculo.py)` |
++
++SHA-256 observado no golden da AV2: `D3E172FA187BFC2770AE2E8A387CB1191C8B1D447CF339215D66725551727670`.
++
++As falhas gerais antes e depois são as mesmas: v08 CPF com dígito errado (`201 != 422`), v09 CPF com dígitos iguais (`201 != 422`) e v10 lista de erros (`400 != 422`). Cada um desses comandos retorna 1; os comandos verdes retornam 0. A execução conjunta de vários comandos no shell não deve ser interpretada como aprovação de todos pelo código do último processo.
++
++## Prova vermelha, antes de editar o caso
++
++O teste novo já existia, mas `estoque.py` e `pedidos.py` ainda eram os da main. A asserção de igualdade completa dos saldos detectou:
++
++```text
++subtest intermediario: {'A': 3, 'B': 3} != {'A': 4, 'B': 3}
++subtest ultimo:        {'A': 3, 'B': 2} != {'A': 4, 'B': 3}
++subtest sku_repetido:  {'A': 2, 'B': 3} != {'A': 4, 'B': 3}
++Ran 2 tests
++FAILED (failures=3)
++```
++
++O cenário de falha no primeiro item e o fluxo aprovado já passavam. Após a correção, todos os cenários passaram, incluindo a comparação completa de reservas e a ausência de cobrança/pedido salvo nos cenários recusados. O teste substitui somente `handlers._service` por um serviço isolado, restaurado ao sair de `patch.object`; os colaboradores de negócio são reais.
++
++Para repetir a fase vermelha sem tocar na branch da entrega, aplique somente o arquivo novo `test_reserva_estoque.py` a uma cópia da base `1a12ad2` e execute o mesmo comando de unittest. Não é necessário modificar `testes/` nem a referência golden.
++
++## Revisão do diff
++
++`python -B avaliacoes/av3/gerar_diff.py` verifica a lista permitida de mudanças rastreadas e novos arquivos; aceita separadamente os nove arquivos da AV2 fornecidos pelo estudante como insumos locais, sem incluí-los no patch. Exige `git diff --check` e gera `avaliacoes/av3/AV3-B3.patch`. Esse patch inclui código, teste de regressão e documentos novos da AV3. Não inclui a própria cópia do patch. Os arquivos da AV2 seguem não rastreados, preservados para tratamento em sua própria entrega.
+diff --git a/avaliacoes/av3/gerar_diff.py b/avaliacoes/av3/gerar_diff.py
+new file mode 100644
+index 0000000..c8d24ed
+--- /dev/null
++++ b/avaliacoes/av3/gerar_diff.py
+@@ -0,0 +1,46 @@
++"""Confere o escopo local e exporta o patch AV3, sem alterar o índice Git."""
++from pathlib import Path
++import subprocess
++
++ROOT = Path(__file__).resolve().parents[2]
++TRACKED = {
++    "caso/miniloja/estoque.py",
++    "caso/miniloja/pedidos.py",
++    "caso/testes_existentes/test_pedidos.py",
++}
++NEW = {
++    "avaliacoes/av3/registro-av3-lucasmacena.md",
++    "avaliacoes/av3/ESCOPO_PREVIO.md",
++    "avaliacoes/av3/EVIDENCIAS.md",
++    "avaliacoes/av3/DESCRICAO_PR.md",
++    "avaliacoes/av3/test_reserva_estoque.py",
++    "avaliacoes/av3/gerar_diff.py",
++}
++INPUTS = {f"avaliacoes/av2/{name}" for name in (
++    "ADR-001-calcular-total.md", "ANEXO_TECNICO.md", "ESCOPO_PREVIO.md",
++    "REGISTRO_AV2.md", "calculo_inicial.py", "golden.py", "mutacao.py",
++    "referencia.jsonl", "test_calculo_contrato.py",
++)}
++OUTPUT = "avaliacoes/av3/AV3-B3.patch"
++
++
++def git(*args, accepted=(0,)):
++    result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True)
++    if result.returncode not in accepted:
++        raise SystemExit(result.stderr.decode("utf-8", errors="replace"))
++    return result.stdout
++
++
++if __name__ == "__main__":
++    changed = set(git("diff", "HEAD", "--name-only").decode().splitlines())
++    untracked = set(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
++    outside = (changed - TRACKED - NEW) | (untracked - NEW - INPUTS - {OUTPUT})
++    if outside:
++        raise SystemExit(f"FORA DO ESCOPO: {sorted(outside)}")
++    git("diff", "--check", "HEAD")
++    patch = git("diff", "--binary", "HEAD", "--", *sorted(TRACKED | NEW))
++    for path in sorted(NEW & untracked):
++        patch += git("diff", "--no-index", "--binary", "--", "/dev/null", path, accepted=(1,))
++    (ROOT / OUTPUT).write_bytes(patch)
++    print(f"ESCOPO OK: {len(changed)} rastreados alterados; {len(NEW & untracked)} novos AV3")
++    print(f"PATCH: {OUTPUT} ({len(patch)} bytes); AV2 preservada e excluida")
+diff --git a/avaliacoes/av3/registro-av3-lucasmacena.md b/avaliacoes/av3/registro-av3-lucasmacena.md
+new file mode 100644
+index 0000000..01b4213
+--- /dev/null
++++ b/avaliacoes/av3/registro-av3-lucasmacena.md
+@@ -0,0 +1,31 @@
++# Registro individual — AV3
++
++**Limite: três páginas + até duas de evidências.** Estudante: Lucas Costa Neves Macena — Data: 01/11/2026 — Caminho: B (MiniLoja: B3)
++
++**Modo de interação usado e por quê (raio de impacto, oráculo, familiaridade):** agente de codificação com escopo explícito. O impacto está limitado à reserva de estoque na criação de pedidos; o oráculo é R2.2, que exige recusa sem reservas parciais; a leitura do contrato e dos módulos permitiu delimitar a tarefa. Deleguei a implementação e a preparação das evidências, mantendo a orientação, a revisão e a decisão de aceitar. **Alternativa comparada:** edição manual oferece controle por linha, mas exige a mesma prova de regressão; escolhi o agente pela possibilidade de delegar a implementação dentro de um escopo verificável.
++
++**Escopo declarado antes (seis campos):** objetivo: impedir reservas parciais por insuficiência; pode tocar: `estoque.py`, `pedidos.py`, `caso/testes_existentes/test_pedidos.py` e artefatos da AV3; não pode tocar: `testes/`, contrato, cálculo, cadastro, acesso, pagamentos e registros anteriores; invariantes: assinatura de `criar`, respostas, exceção de estoque, fluxo aprovado e pagamento recusado; pronto quando: regressão vermelha antes/verde depois, estado preservado, suítes e golden conferidos, diff restrito; parar se: exigir mudança de contrato, dependências ou políticas fora de B3. Plano: [ESCOPO_PREVIO.md](ESCOPO_PREVIO.md). **Cumprido? Como verifiquei (comando ou barreira):** conferi que o diff respeita o escopo e que a solução valida todos os débitos antes de reservar, inclusive SKUs repetidos. A barreira de arquivos permitidos e `git diff --check` acompanham a exportação pelo [gerador do diff](gerar_diff.py). Entrega revisável: [patch B3](AV3-B3.patch) e [descrição da mudança](DESCRICAO_PR.md), com os insumos da AV2 excluídos do patch.
++
++**Verificação:** teste que falharia sem a mudança: `test_falha_preserva_estado_e_nao_cobra_nem_salva`, em [test_reserva_estoque.py](test_reserva_estoque.py). Prova: `python -B -m unittest avaliacoes/av3/test_reserva_estoque.py -v`; na base `1a12ad2`, dois testes executados e três subtestes falhando (item intermediário, último e SKU repetido); após a correção, dois testes passam. O teste compara saldos e reservas anteriores, exige 409 e ausência de cobrança e pedido salvo; há também cenário de compra aprovada. Examinei o teste, compreendi a diferença antes/depois e executei os comandos de verificação, registrando as saídas. Os excertos da execução inicial do assistente e as instruções para repetir a prova estão em [EVIDENCIAS.md](EVIDENCIAS.md). Suíte existente: 26 testes passam, sem usá-los isoladamente como prova; verificações gerais: mesmas três falhas anteriores de cadastro; golden masters: 12 e 2.882 casos iguais.
++
++| O que a IA errou (o quê, onde) | Como detectei | O que corrigi e por quê (causa e impacto) |
++| --- | --- | --- |
++| O desenho de medição previa oito semanas com duas tarefas semanais, mas exigia dez pares. | A revisão assistida contra a rubrica identificou que 16 tarefas formariam apenas oito pares. | Solicitei a correção e aceitei dez semanas, 20 tarefas e dez pares completos. O assistente ajustou o texto; isso torna a coleta compatível com a regra de decisão. |
++| A métrica dizia “minutos até verificado”, mas não fixava o início e o fim da contagem. | Nesta revisão assistida, a leitura da definição mostrou que duas pessoas poderiam iniciar o relógio em momentos diferentes ou encerrar antes da revisão. | O assistente definiu início na atribuição da tarefa e fim após as verificações previstas e a aprovação da revisão, incluindo esperas e retrabalho. A regra evita comparar tempos medidos com fronteiras diferentes. |
++| A decisão exigia queda de 20%, mas “medianas pareadas” não especificava a fórmula nem a referência do percentual. | Nesta revisão assistida, a conferência da regra mostrou que comparar medianas dos grupos ou calcular reduções por par poderia levar a decisões diferentes. | O assistente explicitou a redução por par em relação ao tempo sem escopo e a mediana dessas reduções como critério de decisão. Isso torna o limiar de 20% reproduzível. |
++
++**Dependências novas (se houver) e checagem:** nenhuma. Implementação e verificações usam somente a biblioteca padrão; execução inicial documentada com Python 3.13.14, sem instalação de pacotes.
++
++| Medição do meu time | Meu desenho |
++| --- | --- |
++| Pergunta e decisão | No time hipotético da AV1.6 (5–8 pessoas, serviço web), exigir escopo e plano revisados antes do diff reduz o tempo até “verificado” sem piorar a qualidade? Manter a regra se a mediana das reduções percentuais por par for ≥20% em ≥10 pares completos sem violar o guardrail; caso contrário, retirar. |
++| Métrica primária e guardrail | Tempo em minutos desde a atribuição da tarefa até concluir as verificações previstas e obter aprovação da revisão, incluindo esperas e retrabalho. Para cada par, redução (%) = 100 × (tempo sem escopo − tempo com escopo) / tempo sem escopo; usar a mediana das reduções. Registrar tempos positivos com precisão de segundos; idas e vindas como complemento. Guardrail: mutação do conjunto fixo ≥74% e golden sem mudança inesperada. |
++| Baseline, período e método | Histórico: AV1.1, 6/13/10 min até “pronto” (Plan/manual/AcceptEdits); AV1.2, golden 12/12 na segunda rodada; AV1.3, mutação 23/31 (74%). Esses dados não comprovam ganho nem equivalem a “verificado”. Coleta proposta: dez semanas, um par de tarefas semelhantes por semana, sorteio com/sem escopo, 20 tarefas e dez pares completos; estender se faltarem pares. Aplicar a fórmula por par e registrar dificuldade, aprendizado, revisor, modelo e testes instáveis. |
++| Risco de manipulação e contramedida | Pular verificações, aceitar testes tautológicos ou fatiar tarefas. Fixar o conjunto de mutação, revisar amostras semanalmente com outra pessoa e não avaliar pessoas apenas pelo tempo. |
++| Tarefa recorrente a automatizar e verificação exigida | Atualizar dependências de baixo risco semanalmente (~30 min, estimativa da AV1.6). Agente propõe PR em rascunho, em branch própria, sem segredos, com limite de 20 min; mantenedor verifica diff restrito aos manifestos, suíte e golden iguais e mutação sem queda. Preferir bot determinístico se cobrir ≥80% dos casos. Trata-se de proposta; a automação e a coleta prospectiva não foram executadas nesta AV3. |
++
++**Limites e condição para rever:** solução para execução sequencial em memória; rever antes de introduzir concorrência, persistência ou compensação de pagamento. A representação existente de reservas de SKUs repetidos no fluxo aprovado foi preservada. As falhas v08/v09/v10 de cadastro não pertencem ao escopo B3. O histórico não permite atribuir ganho de produtividade. Interromper a automação proposta se a mutação cair abaixo de 74%, o golden mudar inesperadamente ou houver reversão atribuível ao agente.
++
++**Procedência/IA:** ferramenta e modelo visíveis: Codex, agente baseado em GPT-6; variante exata não informada. Tarefa delegada e contexto: investigar B3 a partir do contrato fictício e dos registros AV1/AV2, implementar, escrever testes, executar verificações iniciais e preparar os artefatos. Trecho aproveitado: código, teste, patch e redação assistida. Minha verificação/intervenção: escolhi B3, forneci a AV2, solicitei a revisão contra a rubrica e a correção da amostra da medição, revisei o diff, compreendi a prova de regressão, executei os comandos e registrei as saídas. Aceitei a solução e a medição ajustada. O assistente realizou a implementação e a preparação dos artefatos; a orientação, a revisão pessoal e a decisão final são minhas.
++
++**Revisão:** [x] modo; [x] escopo; [x] verificação; [x] erros da IA; [x] medição e automação; [x] procedência.
+\ No newline at end of file
+diff --git a/avaliacoes/av3/test_reserva_estoque.py b/avaliacoes/av3/test_reserva_estoque.py
+new file mode 100644
+index 0000000..de634fe
+--- /dev/null
++++ b/avaliacoes/av3/test_reserva_estoque.py
+@@ -0,0 +1,62 @@
++"""Regressões de R2.2 com estado real; executar da raiz com unittest."""
++from pathlib import Path
++import sys
++import unittest
++from unittest.mock import patch
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "caso"))
++
++from miniloja import handlers
++from miniloja.estoque import Estoque
++from miniloja.pagamentos import GatewayFake
++from miniloja.pedidos import PedidoService
++from miniloja.repositorio import RepositorioPedidos
++
++
++def item(sku, qtd):
++    return {"sku": sku, "qtd": qtd, "preco": 50.0}
++
++
++class TestReservaEstoque(unittest.TestCase):
++    def test_falha_preserva_estado_e_nao_cobra_nem_salva(self):
++        cenarios = {
++            "primeiro": [item("X", 1), item("A", 1)],
++            "intermediario": [item("A", 1), item("X", 1), item("B", 1)],
++            "ultimo": [item("A", 1), item("B", 1), item("X", 1)],
++            "sku_repetido": [item("A", 2), item("A", 3)],
++        }
++        for nome, itens in cenarios.items():
++            with self.subTest(nome=nome):
++                estoque = Estoque({"A": 6, "B": 4})
++                # Reservas anteriores de outro usuário e do mesmo usuário.
++                estoque.reservar("B", 1, "tmp-9")
++                estoque.reservar("A", 2, "tmp-1")
++                repo, gateway = RepositorioPedidos(), GatewayFake()
++                service = PedidoService(repo, estoque, gateway)
++                saldos, reservas = dict(estoque.saldos), dict(estoque.reservas)
++                with patch.object(handlers, "_service", service):
++                    status, corpo = handlers.post_pedidos(1, {"itens": itens})
++                self.assertEqual(status, 409)
++                self.assertEqual(corpo["sku"], "A" if nome == "sku_repetido" else "X")
++                self.assertEqual(estoque.saldos, saldos)
++                self.assertEqual(estoque.reservas, reservas)
++                self.assertEqual(gateway.cobrancas, [])
++                self.assertEqual(repo.todos(), [])
++
++    def test_lote_valido_com_sku_repetido_cria_pedido(self):
++        estoque = Estoque({"A": 5, "B": 2})
++        repo, gateway = RepositorioPedidos(), GatewayFake()
++        service = PedidoService(repo, estoque, gateway)
++        with patch.object(handlers, "_service", service):
++            status, pedido = handlers.post_pedidos(
++                1, {"itens": [item("A", 2), item("A", 3), item("B", 1)]}
++            )
++        self.assertEqual(status, 201)
++        self.assertEqual(pedido["status"], "pago")
++        self.assertEqual(estoque.saldos, {"A": 0, "B": 1})
++        self.assertEqual(repo.todos(), [pedido])
++        self.assertEqual(gateway.cobrancas, [(pedido["total"], "tok_ok")])
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
