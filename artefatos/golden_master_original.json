@@ -1,0 +1,205 @@
+{
+  "titulo": "Golden master original de calcular_total",
+  "commit": "2c2fc89c8c1d2f03423ed30d31f790b8601e6c2d",
+  "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]",
+  "plataforma": "win32",
+  "MINILOJA_PROMO_NATAL_ambiente_pai": "não definido; cada caso configura explicitamente 0 ou 1",
+  "sha256_calculo_py": "8ec2555b10dc33f438a511abc7b3dff59e6c7583b05d0656ce1918367fe180e5",
+  "casos": [
+    {
+      "id": 1,
+      "descricao": "C1 camisa e bola, sem cupom, PE",
+      "carrinho": "C1_camisa_e_bola",
+      "itens": [
+        {
+          "preco": 80.0,
+          "qtd": 1
+        },
+        {
+          "preco": 50.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": null,
+      "uf": "PE",
+      "flag_natal": "0",
+      "saida": 150.05
+    },
+    {
+      "id": 2,
+      "descricao": "C1 camisa e bola, PROMO10, SP",
+      "carrinho": "C1_camisa_e_bola",
+      "itens": [
+        {
+          "preco": 80.0,
+          "qtd": 1
+        },
+        {
+          "preco": 50.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "PROMO10",
+      "uf": "SP",
+      "flag_natal": "0",
+      "saida": 146.48
+    },
+    {
+      "id": 3,
+      "descricao": "C1 camisa e bola, VIP15, RJ",
+      "carrinho": "C1_camisa_e_bola",
+      "itens": [
+        {
+          "preco": 80.0,
+          "qtd": 1
+        },
+        {
+          "preco": 50.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "VIP15",
+      "uf": "RJ",
+      "flag_natal": "0",
+      "saida": 139.92
+    },
+    {
+      "id": 4,
+      "descricao": "C2 chuteira acima de R$ 200, sem cupom, PE",
+      "carrinho": "C2_chuteira",
+      "itens": [
+        {
+          "preco": 250.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": null,
+      "uf": "PE",
+      "flag_natal": "0",
+      "saida": 262.5
+    },
+    {
+      "id": 5,
+      "descricao": "C2 chuteira, FRETEGRATIS, SP",
+      "carrinho": "C2_chuteira",
+      "itens": [
+        {
+          "preco": 250.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "FRETEGRATIS",
+      "uf": "SP",
+      "flag_natal": "0",
+      "saida": 267.5
+    },
+    {
+      "id": 6,
+      "descricao": "C3 três bolas, cupom inválido, RJ",
+      "carrinho": "C3_varias_bolas",
+      "itens": [
+        {
+          "preco": 19.99,
+          "qtd": 3
+        }
+      ],
+      "cupom": "INVALIDO",
+      "uf": "RJ",
+      "flag_natal": "0",
+      "saida": 86.36
+    },
+    {
+      "id": 7,
+      "descricao": "Carrinho de R$ 200,00 exatos, sem cupom, PE",
+      "carrinho": "fronteira_200",
+      "itens": [
+        {
+          "preco": 200.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": null,
+      "uf": "PE",
+      "flag_natal": "0",
+      "saida": 223.55
+    },
+    {
+      "id": 8,
+      "descricao": "Carrinho de R$ 200,00 exatos, cupom PROMO10, UF MG (outra)",
+      "carrinho": "fronteira_200",
+      "itens": [
+        {
+          "preco": 200.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "PROMO10",
+      "uf": "MG",
+      "flag_natal": "0",
+      "saida": 226.69
+    },
+    {
+      "id": 9,
+      "descricao": "C1 camisa e bola, NATAL desligado, PE",
+      "carrinho": "C1_camisa_e_bola",
+      "itens": [
+        {
+          "preco": 80.0,
+          "qtd": 1
+        },
+        {
+          "preco": 50.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "NATAL",
+      "uf": "PE",
+      "flag_natal": "0",
+      "saida": 150.05
+    },
+    {
+      "id": 10,
+      "descricao": "C1 camisa e bola, NATAL ligado, PE",
+      "carrinho": "C1_camisa_e_bola",
+      "itens": [
+        {
+          "preco": 80.0,
+          "qtd": 1
+        },
+        {
+          "preco": 50.0,
+          "qtd": 1
+        }
+      ],
+      "cupom": "NATAL",
+      "uf": "PE",
+      "flag_natal": "1",
+      "saida": 122.75
+    },
+    {
+      "id": 11,
+      "descricao": "C3 três bolas, sem cupom, UF MG (outra)",
+      "carrinho": "C3_varias_bolas",
+      "itens": [
+        {
+          "preco": 19.99,
+          "qtd": 3
+        }
+      ],
+      "cupom": null,
+      "uf": "MG",
+      "flag_natal": "0",
+      "saida": 97.06
+    },
+    {
+      "id": 12,
+      "descricao": "Carrinho vazio, sem cupom, SP",
+      "carrinho": "vazio",
+      "itens": [],
+      "cupom": null,
+      "uf": "SP",
+      "flag_natal": "0",
+      "saida": 21.29
+    }
+  ]
+}

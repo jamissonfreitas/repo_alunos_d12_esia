@@ -1,0 +1,34 @@
+Registro individual — AV1.4. **Limite: uma página, incluindo evidências essenciais.**
+Estudante: Lucas Costa Neves Macena — Data: 23/10/2026. Origem: repositório desconhecido liberado no bloco (`caso/legado/`); modalidade: **execução/leitura própria** (offline, `CIENTO_OFFLINE=1`).
+
+| # | Afirmação | Trecho (arquivo:linha) | Contraevidência buscada | Status |
+|---|---|---|---|---|
+| 1 | Ingestão começa em `ingest.run`; disparada por `jobs ingest`, `jobs refresh` e cron | `ingest.py:43`; `jobs.py:10,23`; `rodar_tudo.sh:6,11` | `grep -rn ingest`: sem outro chamador | Confirmada |
+| 2 | "Só `ingest` escreve em `trabalhos`" | `ingest.py:17` | Achei mais 3: `jobs.py:12`, `exporta_parceiro.py:11`, `corrigir_anos.sql:2` (via `jobs sql`, `jobs.py:30-33`) | **Refutada** (4 escritores) |
+| 3 | Trabalho: nome de `concepts[0]`, ou `None`; autor: nome do `x_concepts` de nível 0 com maior `score`, ou `None` sem candidato. Depende de `/works`, `/authors` e `/concepts` | `ingest.py:14-15,48,51`; `instituicoes.py:22-26,32` | Inspeção dos caminhos sem conceitos e da seleção por `score`: não há classificação por topics nesses trechos | Confirmada |
+| 4 | Relatórios: `top_instituicoes`, `evolucao_anual`, `areas_autores`, `conceitos` e `exporta_parceiro`. `jobs relatorio <nome>` dispara os habilitados; o script de agendamento chama `top_instituicoes` e `exporta_parceiro`. `conceitos` não é executado pelo script apresentado e está desabilitado na configuração fornecida | `relatorios.py:7-45`; `jobs.py:26-27`; `rodar_tudo.sh:9-10`; `config.ini:21` | O despacho por `getattr` constrói o nome da função; buscar apenas `rel_conceitos` não exclui chamadas dinâmicas. A configuração atual bloqueia sua execução via `executar` | Confirmada no escopo analisado |
+| 5 | Ambiente efetivo `prod` ativa overrides: `limite_paginas=500`, `usar_cache_agressivo=true`, `parceiro_pasta=/mnt/compartilhado/parceiro`; demais chaves vêm de `[geral]`. Sem `CIENTO_AMBIENTE` herdada, o typo `CIENTO_AMBIENT` deixa `dev`: 50, false, `saida_parceiro`. `CIENTO_OFFLINE=1` impede rede | `config.py:10-17`; `config.ini:1-18`; `rodar_tudo.sh:3-4`; `cliente.py:26-33` | O script não apaga `CIENTO_AMBIENTE` herdada; se for `prod`, os overrides valem apesar do typo | Confirmada por inspeção; cron real incerto |
+
+**Resposta errada aproveitada de Claude Code:** “`conceitos` nunca roda”. **Refutação:** `relatorios.py:41-45` resolve `rel_<nome>` por `getattr`; `config.ini:21` apenas desabilita `conceitos` no cenário fornecido. Ausência de chamada literal não prova impossibilidade de execução. **Busca de escritores reproduzida**, na raiz: `rg -n -i '(insert|update|delete|replace).*trabalhos' caso/legado/cienciometria caso/legado/scripts` → `ingest.py:17`, `jobs.py:12`, `exporta_parceiro.py:11`, `corrigir_anos.sql:2`. `-i` inclui SQL em maiúsculas. O comando histórico incompleto de `grep` não é usado como prova.
+
+**Caracterização anterior à migração:** em `caso/legado/`, com `CIENTO_OFFLINE=1`, o registro original informa `python -B -m cienciometria.jobs ingest` → `120 trabalhos` e `python -B -m cienciometria.jobs enriquecer` → `30 autores`; sem execução declarada de `refresh` ou `sql`. Não há comprovação de banco inicialmente vazio nem localização da captura integral original. Na revisão, as consultas de `relatorios.py:9-12,18-20` foram executadas via Node.js `node:sqlite`, em modo somente leitura, sobre `data/cienciometria.sqlite`: confirmados 120 trabalhos e 30 autores. Resultados completos preservados abaixo (dados tabulados, não nova execução dos comandos Python):
+
+| Comando do relatório | Resultado de referência |
+|---|---|
+| `python -B -m cienciometria.jobs relatorio top_instituicoes` | Universidade Federal de Teste: 64; Universidade Exemplo do Recife: 64; Universidade de Exemplolândia: 58; Centro de Pesquisa Imaginário: 46; Instituto Fictício de Tecnologia: 10 |
+| `python -B -m cienciometria.jobs relatorio evolucao_anual` | ano/trabalhos/citações: 0/2/21; 2018/22/1797; 2019/18/1781; 2020/21/2003; 2021/18/1465; 2022/18/1374; 2023/21/2400 |
+
+| Fatia | Mudança | Mecânica ou decisão humana? | Verificação |
+|---|---|---|---|
+| 1 | Definir área como `domain`: trabalho usa `primary_topic.domain`; autor usa o domínio mais frequente nos trabalhos ingeridos, contados uma vez por autor; empate por ID; ausência → `None`. Escopo local, sem equivalência presumida com `x_concepts` | Humana: aprovar semântica e população antes do codemod | Fixture: domínios D1,D1,D2 → autor D1; trabalho com principal D2 → D2; vazio → `None`; empate D1/D2 → D1 |
+| 2 | Adaptar filtros, `/topics`, campos e cache ao contrato aprovado; mapear IDs legados explicitamente | Humana: mapeamento/adapter; mecânica: renomear referências após aprovação | Fixtures novas de topics; rejeitar mapeamento ausente; executar casos da fatia 1. Cache legado não valida a API atual |
+| 3 | Migrar esquema e relatórios de áreas/conceitos | Humana: contrato; mecânica: migração após definição | Conferir áreas esperadas; comparar os dois relatórios acima com os mesmos trabalhos/citações; empates de instituições comparados por nome e quantidade |
+| 4 | Preservar contrato CSV do parceiro | Mecânica após confirmação humana do contrato | Cabeçalho e ordem exatamente `instituicao,trabalhos,citacoes`; conferir também valores na mesma base |
+| 5 | Corrigir `CIENTO_AMBIENT` no script | Mecânica; humana: aprovar ambiente pretendido | Inspecionar configuração com variável correta ausente/presente; execução offline isolada, sem usar o diretório real do parceiro |
+| 6 | Decidir habilitação do relatório de conceitos migrado | Humana | Desabilitado deve falhar; habilitado deve produzir a classificação esperada pela fatia 1 |
+
+**Limite e condição para reabrir:** não cobre o cron real (valor efetivo das variáveis), chamadas dinâmicas fora do fluxo inspecionado, `jobs sql` com qualquer arquivo, consumidores externos (planilha do parceiro) nem a API real (cache fictício); não executei `refresh` nem `sql`. Reabrir a 2 se outro SQL/serviço escrever no banco; a 4 se a configuração habilitar `conceitos` ou houver chamada direta a `rel_conceitos`; a 5 se o cron real definir `CIENTO_AMBIENTE`; a 3 se a API real divergir do cache.
+
+**Procedência/IA:** Claude Code, Claude Sonnet 5.5 (`claude-sonnet-5-5`); tarefa: ler `caso/legado/`, rodar buscas e comandos offline e rascunhar este registro; trecho aproveitado: linhas 1–5 e plano em fatias; minha verificação/intervenção: inspeção do despacho dinâmico (`relatorios.py:41-45`), da configuração (`config.ini:21`) e do agendamento (`scripts/rodar_tudo.sh:9-10`); substituição de “conceitos nunca roda” por uma conclusão restrita à configuração e ao script analisados, pois a busca pelo nome literal não exclui chamadas dinâmicas. O raciocínio e a decisão registrados são meus.
+
+**Revisão:** [x] cinco respostas com trecho; [x] uma refutação; [x] caracterização; [x] plano em fatias; [x] até uma página.

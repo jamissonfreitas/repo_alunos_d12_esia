@@ -22,7 +22,9 @@ class TestPedidos(unittest.TestCase):
         gateway.cobrar.return_value = {"status": "aprovado", "id": "x"}
         repo.salvar.return_value = {"id": 7}
         PedidoService(repo, estoque, gateway).criar(2, [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}])
-        self.assertTrue(estoque.reservar.called)
+        estoque.reservar_lote.assert_called_once_with(
+            [{"sku": "CAMISA-M", "preco": 50.0, "qtd": 2}], pedido_id="tmp-2"
+        )
         self.assertTrue(gateway.cobrar.called)
         self.assertTrue(repo.salvar.called)
 
